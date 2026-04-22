@@ -6,6 +6,8 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
 
+import { GoogleButton } from '@/components/auth/google-button'
+
 export default function SignupPage() {
   const router = useRouter()
   const [name, setName] = useState('')
@@ -65,6 +67,14 @@ export default function SignupPage() {
             {error}
           </p>
         )}
+
+        <GoogleButton callbackUrl="/" label="Sign up with Google" />
+
+        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="h-px flex-1 bg-border" />
+          <span>or with email</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
