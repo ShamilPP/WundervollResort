@@ -1,0 +1,289 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  phone         String?
+  role          Role      @default(USER)
+
+  accounts Account[]
+  sessions Session[]
+  bookings Booking[]
+  reviews  Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// ROOMS
+// ─────────────────────────────────────────────
+
+enum RoomType {
+  DELUXE
+  SUITE
+  VILLA
+  FAMILY
+  PRESIDENTIAL
+}
+
+enum RoomFeature {
+  BEACHSIDE_VIEW
+  FRONT_VIEW
+  OCEAN_VIEW
+  GARDEN_VIEW
+  POOL_VIEW
+  MOUNTAIN_VIEW
+  PRIVATE_BALCONY
+  PRIVATE_POOL
+  JACUZZI
+  KING_BED
+  QUEEN_BED
+  TWIN_BEDS
+  WIFI
+  AIR_CONDITIONING
+  MINI_BAR
+  ROOM_SERVICE
+  SMART_TV
+  COFFEE_MACHINE
+  SAFE
+  BATHTUB
+}
+
+model Room {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug        String   @unique
+  name        String
+  type        RoomType
+  description String
+  shortDesc   String
+
+  maxGuests Int    @default(2)
+  bedType   String
+  sizeSqft  Int
+
+  basePrice    Int
+  weekendPrice Int?
+
+  features RoomFeature[]
+
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  images         RoomImage[]
+  bookings       Booking[]
+  blockedDates   BlockedDate[]
+  seasonalPrices SeasonalPrice[]
+  reviews        Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+model RoomImage {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  roomId    String  @db.ObjectId
+  url       String
+  publicId  String
+  alt       String?
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+}
+
+// ─────────────────────────────────────────────
+// BOOKINGS
+// ─────────────────────────────────────────────
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  REFUNDED
+}
+
+model Booking {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  code String @unique
+
+  userId  String   @db.ObjectId
+  user    User     @relation(fields: [userId], references: [id])
+  roomId  String   @db.ObjectId
+  room    Room     @relation(fields: [roomId], references: [id])
+  payment Payment?
+
+  checkIn  DateTime
+  checkOut DateTime
+  nights   Int
+
+  guestCount      Int     @default(1)
+  guestName       String
+  guestEmail      String
+  guestPhone      String?
+  specialRequests String?
+
+  subtotal    Int
+  taxes       Int
+  totalAmount Int
+  currency    String @default("INR")
+
+  status BookingStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([roomId])
+  @@index([status])
+  @@index([checkIn, checkOut])
+}
+
+// ─────────────────────────────────────────────
+// PAYMENTS
+// ─────────────────────────────────────────────
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  STRIPE
+  DEMO
+  CASH_ON_ARRIVAL
+}
+
+model Payment {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId String  @unique @db.ObjectId
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  amount   Int
+  currency String        @default("INR")
+  status   PaymentStatus @default(PENDING)
+  method   PaymentMethod @default(STRIPE)
+
+  stripePaymentIntentId String? @unique
+  stripeChargeId        String?
+  receiptUrl            String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────
+// AVAILABILITY
+// ─────────────────────────────────────────────
+
+model BlockedDate {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  roomId String @db.ObjectId
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([roomId, startDate, endDate])
+}
+
+model SeasonalPrice {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  roomId String @db.ObjectId
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  price     Int
+
+  createdAt DateTime @default(now())
+
+  @@index([roomId, startDate, endDate])
+}
+
+// ─────────────────────────────────────────────
+// REVIEWS
+// ─────────────────────────────────────────────
+
+model Review {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+  roomId String @db.ObjectId
+  room   Room   @relation(fields: [roomId], references: [id])
+
+  rating  Int
+  title   String?
+  comment String?
+
+  isApproved Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, roomId])
+  @@index([roomId])
+}
