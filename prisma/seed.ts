@@ -197,18 +197,66 @@ const rooms = [
   },
 ]
 
+const imagePool = [
+  'https://cf.bstatic.com/xdata/images/hotel/max1024x768/550249154.jpg?k=2d296f157c541e17ef5c3768c17e99005b72384640971cc6adb118d1402d0963&o=',
+  'https://media.cntraveler.com/photos/53da60a46dec627b149e66f4/master/pass/hilton-moorea-lagoon-resort-spa-moorea-french-poly--110160-1.jpg',
+  'https://foxosocms.cinuniverse.com/images/uploads/68024ff0649f7aaristo_facade.webp',
+  'https://gos3.ibcdn.com/968b09a6f05411ec9c210a58a9feac02.jpeg',
+  'https://cf.bstatic.com/xdata/images/hotel/max1024x768/656411102.jpg?k=7e1185b2b5cee354505b239d9266d7b4e14922dcc32f66404c06554bacdbac1a&o=',
+  'https://cdn.prod.website-files.com/646f213fe994eb87d757cb30/6716a150190e46ec195e9a61_hero_banner.webp',
+  'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2b/32/16/d6/caption.jpg?w=900&h=500&s=1',
+  'https://www.cvent.com/sites/default/files/image/2024-10/Hyatt-Regency-Grand-Reserve.jpg',
+  'https://www.sunhotelandresort.com/images/JSD09255.webp',
+]
+
+function pickImages(seedKey: string, count: number) {
+  // Deterministic shuffle from a seed string so the same slug always gets the
+  // same images (avoids re-seed churn). Uses a tiny LCG.
+  let s = 0
+  for (let i = 0; i < seedKey.length; i++) s = (s * 31 + seedKey.charCodeAt(i)) >>> 0
+  const pool = [...imagePool]
+  const picks: string[] = []
+  for (let i = 0; i < count; i++) {
+    s = (s * 1103515245 + 12345) >>> 0
+    const idx = s % pool.length
+    picks.push(pool[idx])
+    pool.splice(idx, 1)
+    if (pool.length === 0) break
+  }
+  return picks
+}
+
 async function main() {
-  // Standalone mongod — create-only seed. Run `npx prisma db push --force-reset`
-  // before re-seeding to reset state (upsert/update require a replica set).
   for (const room of rooms) {
+    let created: { id: string } | null = null
     try {
-      await prisma.room.create({ data: room })
+      created = await prisma.room.create({ data: room })
     } catch (e: unknown) {
       if ((e as { code?: string }).code === 'P2002') {
         console.log(`  skip: ${room.slug} (already exists)`)
+        created = await prisma.room.findUnique({ where: { slug: room.slug } })
       } else {
         throw e
       }
+    }
+
+    if (!created) continue
+
+    const existingImages = await prisma.roomImage.count({ where: { roomId: created.id } })
+    if (existingImages > 0) continue
+
+    const urls = pickImages(room.slug, 4)
+    for (const [i, url] of urls.entries()) {
+      await prisma.roomImage.create({
+        data: {
+          roomId: created.id,
+          url,
+          publicId: `seed-${room.slug}-${i}`,
+          alt: `${room.name} photo ${i + 1}`,
+          isPrimary: i === 0,
+          sortOrder: i,
+        },
+      })
     }
   }
 
@@ -226,7 +274,7 @@ async function main() {
     })
   }
 
-  console.log('Seeded 9 rooms and admin user (admin@wundervoll.com / admin123)')
+  console.log('Seeded 9 rooms (with images) and admin user (admin@wundervoll.com / admin123)')
 }
 
 main()
