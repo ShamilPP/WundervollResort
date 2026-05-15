@@ -49,7 +49,7 @@ export function GalleryGrid() {
     return (
       <div className="container py-32 text-center">
         <p className="font-serif text-xl text-obsidian/40 italic">
-          "The sanctuary's visual vault is being prepared. Please return soon."
+          {"\"The sanctuary's visual vault is being prepared. Please return soon.\""}
         </p>
       </div>
     )

@@ -28,7 +28,7 @@ export default function GalleryPage() {
               The <span className="text-accent italic font-light">Gallery</span>
             </h1>
             <p className="mx-auto max-w-xl text-lg font-light text-obsidian/40 italic">
-              "A curated look around the sanctuary, where nature meets architecture in unhurried silence."
+              {"\"A curated look around the sanctuary, where nature meets architecture in unhurried silence.\""}
             </p>
           </div>
           

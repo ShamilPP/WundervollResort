@@ -93,7 +93,7 @@ export default function AdminGalleryPage() {
         <div>
           <h1 className="font-serif text-4xl text-obsidian tracking-tight">Gallery Vault</h1>
           <p className="text-sm font-light text-obsidian/40 italic mt-1">
-            "Manage the visual manifestations of the sanctuary."
+            {"\"Manage the visual manifestations of the sanctuary.\""}
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -187,7 +187,7 @@ export default function AdminGalleryPage() {
             <ImageIcon className="h-8 w-8" />
           </div>
           <p className="text-lg font-serif text-obsidian/40 italic">
-            "The vault is currently empty. Add your first manifestation above."
+            {"\"The vault is currently empty. Add your first manifestation above.\""}
           </p>
         </div>
       )}
