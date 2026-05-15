@@ -20,12 +20,12 @@ export function RoomFilters() {
   function update(next: Partial<typeof current>) {
     const sp = new URLSearchParams(params.toString())
     const merged = { ...current, ...next }
-    
+
     for (const [k, v] of Object.entries(merged)) {
       if (v) sp.set(k, v)
       else sp.delete(k)
     }
-    
+
     // { scroll: false } prevents the page from jumping back to the top
     startTransition(() => router.push(`/rooms?${sp.toString()}`, { scroll: false }))
   }
@@ -118,7 +118,7 @@ function FilterPill({ active, onClick, label }: { active: boolean, onClick: () =
       className={cn(
         'px-8 py-3 text-[11px] uppercase tracking-[0.4em] transition-all duration-500 rounded-full border font-black',
         active
-          ? 'bg-accent text-obsidian border-accent shadow-xl shadow-accent/20'
+          ? 'bg-accent text-white border-accent shadow-xl shadow-accent/20'
           : 'bg-white/5 text-white/70 border-white/10 hover:border-white/30 hover:text-white',
       )}
     >
