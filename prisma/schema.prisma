@@ -293,3 +293,20 @@ model Review {
   @@unique([userId, roomId])
   @@index([roomId])
 }
+// ─────────────────────────────────────────────
+// GALLERY
+// ─────────────────────────────────────────────
+
+model GalleryImage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  url       String
+  alt       String?
+  caption   String?
+  category  String?  @default("GENERAL")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([sortOrder])
+}

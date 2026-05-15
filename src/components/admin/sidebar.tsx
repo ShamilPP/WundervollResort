@@ -11,15 +11,17 @@ import {
   BarChart3,
   Settings,
   Home,
+  Image as ImageIcon,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
 const nav = [
   { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard },
-  { href: '/admin/rooms', label: 'Rooms', Icon: BedDouble },
   { href: '/admin/bookings', label: 'Bookings', Icon: CalendarDays },
+  { href: '/admin/rooms', label: 'Rooms', Icon: BedDouble },
   { href: '/admin/availability', label: 'Availability', Icon: Calendar },
+  { href: '/admin/gallery', label: 'Gallery', Icon: ImageIcon },
   { href: '/admin/users', label: 'Users', Icon: Users },
   { href: '/admin/analytics', label: 'Analytics', Icon: BarChart3 },
   { href: '/admin/settings', label: 'Settings', Icon: Settings },
@@ -32,12 +34,12 @@ export function AdminSidebar() {
     <aside className="sticky top-0 z-40 flex w-full flex-col border-b bg-obsidian text-white lg:h-screen lg:w-64 lg:flex-shrink-0 lg:border-b-0 lg:border-r">
       <div className="flex items-center justify-between border-b border-white/5 p-4 lg:p-6 lg:flex-col lg:items-start">
         <div className="space-y-0.5">
-          <Link href="/admin" className="font-serif text-xl tracking-widest text-white">
+          <Link href="/admin" className="font-serif text-xl tracking-widest text-accent">
             Wundervoll
           </Link>
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">Command Suite</p>
         </div>
-        
+
         {/* Mobile Toggle would go here if we had many links, but for now a simple horizontal scroll is elegant */}
       </div>
 
@@ -54,7 +56,7 @@ export function AdminSidebar() {
                 'flex items-center gap-3 whitespace-nowrap rounded-xl px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all duration-300',
                 active
                   ? 'bg-accent text-white shadow-lg shadow-accent/20'
-                  : 'text-white/40 hover:bg-white/5 hover:text-white',
+                  : 'hover:bg-white/5 text-black',
               )}
             >
               <item.Icon className={cn("h-4 w-4", active ? "text-white" : "text-accent")} strokeWidth={1.75} />
@@ -67,7 +69,7 @@ export function AdminSidebar() {
       <div className="hidden border-t border-white/5 p-4 lg:block">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-xl px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white/40 hover:bg-white/5 hover:text-white transition-all"
+          className="flex items-center gap-3 rounded-xl px-4 py-3 text-[11px] font-black uppercase tracking-widest hover:bg-white/5 transition-all text-black"
         >
           <Home className="h-4 w-4 text-accent" strokeWidth={1.75} />
           Back to Sanctuary
