@@ -96,7 +96,7 @@ export default async function DashboardPage() {
                   <Link
                     key={b.id}
                     href={`/dashboard/bookings/${b.id}`}
-                    className="group relative flex flex-col md:flex-row md:items-center justify-between bg-white rounded-[2.5rem] border border-obsidian/5 p-8 transition-all hover:shadow-2xl hover:-translate-y-1"
+                    className="group relative flex flex-col md:flex-row md:items-center justify-between bg-white rounded-[2.5rem] border border-obsidian/5 p-8 transition-all hover:-translate-y-1"
                   >
                     <div className="flex flex-col md:flex-row md:items-center gap-8">
                       <div className="h-16 w-16 rounded-3xl bg-[#FDFCFB] flex items-center justify-center border border-obsidian/5 text-accent shadow-sm">
