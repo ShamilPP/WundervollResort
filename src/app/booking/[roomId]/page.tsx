@@ -20,19 +20,25 @@ export default async function BookingPage({
   if (!room) notFound()
 
   return (
-    <>
+    <div className="bg-[#FDFCFB] min-h-screen flex flex-col">
       <Navbar />
-      <main className="pt-24">
-        <div className="container py-8">
-          <div className="mb-10 max-w-2xl">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              Booking
-            </p>
-            <h1 className="mt-3 font-serif text-4xl">{room.name}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Confirm your dates and details to continue.
-            </p>
+
+      <main className="flex-1 pt-32 pb-24">
+        <div className="container">
+          {/* Editorial Header */}
+          <div className="mb-16 space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="h-px w-12 bg-accent" />
+              <span className="text-[11px] font-black uppercase tracking-[0.8em] text-accent">
+                Reservations
+              </span>
+            </div>
+            <h1 className="font-serif text-4xl md:text-8xl text-obsidian tracking-tighter">
+              Confirm Your <span className="text-accent italic font-light">Stay</span>
+            </h1>
           </div>
+
+          {/* Redesigned Booking Form Component */}
           <BookingForm
             roomId={room.id}
             roomName={room.name}
@@ -41,7 +47,8 @@ export default async function BookingPage({
           />
         </div>
       </main>
+
       <Footer />
-    </>
+    </div>
   )
 }

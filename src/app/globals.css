@@ -4,68 +4,134 @@
 
 @layer base {
   :root {
-    --background: 36 33% 96%;
-    --foreground: 201 44% 12%;
+    /* Ivory & Obsidian Theme (Premium Luxury) */
+    --background: 40 25% 98%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 201 44% 12%;
+    --card-foreground: 0 0% 10%;
 
-    --primary: 201 44% 20%;
-    --primary-foreground: 36 33% 96%;
+    --primary: 162 25% 15%;
+    --primary-foreground: 40 25% 98%;
 
-    --secondary: 36 33% 88%;
-    --secondary-foreground: 201 44% 12%;
+    --secondary: 40 15% 92%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 36 20% 90%;
-    --muted-foreground: 201 20% 35%;
+    --muted: 40 10% 94%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 18 45% 57%;
+    --accent: 215 80% 30%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 50%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 36 20% 84%;
-    --input: 36 20% 84%;
-    --ring: 201 44% 20%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 215 80% 30%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 201 44% 8%;
-    --foreground: 36 33% 96%;
+    --background: 0 0% 5%;
+    --foreground: 40 15% 95%;
 
-    --card: 201 44% 12%;
-    --card-foreground: 36 33% 96%;
+    --card: 0 0% 8%;
+    --card-foreground: 40 15% 95%;
 
-    --primary: 36 33% 88%;
-    --primary-foreground: 201 44% 12%;
+    --primary: 215 70% 45%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 201 30% 18%;
-    --secondary-foreground: 36 33% 96%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 40 15% 95%;
 
-    --muted: 201 20% 15%;
-    --muted-foreground: 36 20% 70%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 40 10% 70%;
 
-    --accent: 18 45% 57%;
+    --accent: 215 70% 45%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62% 45%;
+    --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 201 30% 20%;
-    --input: 201 30% 20%;
-    --ring: 36 33% 88%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 215 70% 45%;
   }
+}
+
+@layer utilities {
+  .fluid-layer {
+    @apply transition-all duration-700;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .blur-layer {
+    @apply backdrop-blur-xl bg-white/5;
+  }
+
+  /* Cinematic Fluidity: Hardware Acceleration */
+  .gpu-layer {
+    transform: translate3d(0, 0, 0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  /* Content Visibility: Rendering Optimization */
+  .optimize-render {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 1000px;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Global Smooth Motion */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased min-h-screen;
     font-feature-settings: 'rlig' 1, 'calt' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
+}
+
+/* Fluid Luxury Optimizations */
+.fluid-layer {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+  pointer-events: auto;
+}
+
+.blur-layer {
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+/* Smoothening section reveals */
+section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 5000px;
 }

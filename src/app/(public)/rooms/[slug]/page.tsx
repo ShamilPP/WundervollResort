@@ -40,57 +40,103 @@ export default async function RoomDetailPage({
   return (
     <>
       <Navbar />
-      <main className="pt-24">
-        <div className="container py-8">
-          <Link href="/rooms" className="text-sm text-muted-foreground hover:underline">
-            ← Back to rooms
-          </Link>
+      <main className="min-h-screen bg-[#FDFCFB] pt-24 pb-32">
+        <div className="container">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 pt-16">
 
-          <div className="mt-4 grid gap-10 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <RoomGallery images={room.images} slug={room.slug} />
+            {/* Left Column: The Narrative Experience */}
+            <div className="lg:col-span-7 space-y-24">
 
-              <div className="mt-10">
-                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                  {room.type}
-                </p>
-                <h1 className="mt-2 font-serif text-4xl md:text-5xl">{room.name}</h1>
-                <p className="mt-4 text-muted-foreground">
-                  {room.maxGuests} guests · {room.bedType} · {room.sizeSqft} sq ft
-                </p>
-                <p className="mt-6 text-base leading-relaxed">{room.description}</p>
+              {/* Cinematic Header */}
+              <div className="space-y-12">
+                <div className="relative overflow-hidden rounded-[3rem] shadow-2xl">
+                  <RoomGallery images={room.images} slug={room.slug} />
+                  <div className="absolute top-6 left-6 md:top-12 md:left-12 pointer-events-none">
+                    <span className="font-serif text-5xl md:text-8xl text-white/10 select-none">
+                      {room.name.split(' ')[0]}
+                    </span>
+                  </div>
+                </div>
 
-                <h2 className="mt-10 font-serif text-2xl">In-room features</h2>
-                <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
-                  {room.features.map((f) => (
-                    <div key={f} className="rounded-md border bg-card px-3 py-2 text-sm">
-                      {featureLabels[f]}
+                <div className="space-y-8 max-w-2xl">
+                  <div className="flex items-center gap-4">
+                    <div className="h-px w-12 bg-accent" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-accent">
+                      The Sanctuary Narrative
+                    </span>
+                  </div>
+                  <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl text-brand-obsidian leading-[1.1] tracking-tight">
+                    {room.name}
+                  </h1>
+                  <p className="text-xl font-light leading-relaxed text-brand-obsidian/70 italic border-l-2 border-accent/20 pl-8">
+                    {room.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Categorized Amenities */}
+              <div className="space-y-12">
+                <div className="space-y-2">
+                  <h2 className="font-serif text-4xl text-brand-obsidian">Sanctuary Essentials</h2>
+                  <p className="text-sm font-medium text-brand-obsidian/30 uppercase tracking-widest">Curated for your comfort</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  <div className="space-y-6">
+                    <h4 className="text-[11px] font-black uppercase tracking-widest text-accent border-b border-accent/10 pb-4">The Residence</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-brand-obsidian/40">Occupancy</span>
+                        <span className="font-bold">{room.maxGuests} Guests</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-brand-obsidian/40">Bedding</span>
+                        <span className="font-bold">{room.bedType}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-brand-obsidian/40">Total Area</span>
+                        <span className="font-bold">{room.sizeSqft} SQ FT</span>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="space-y-6">
+                    <h4 className="text-[11px] font-black uppercase tracking-widest text-accent border-b border-accent/10 pb-4">Services & Tech</h4>
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+                      {room.features.slice(0, 6).map((f) => (
+                        <div key={f} className="flex items-center gap-3">
+                          <div className="h-1 w-1 rounded-full bg-accent" />
+                          <span className="text-[13px] font-bold text-brand-obsidian/60 uppercase tracking-wide">
+                            {featureLabels[f]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <aside className="lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-lg border bg-card p-6 shadow-sm">
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-medium">{formatINR(room.basePrice)}</span>
-                  <span className="text-xs text-muted-foreground">per night</span>
-                </div>
-                {room.weekendPrice && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Weekends from {formatINR(room.weekendPrice)}
-                  </p>
-                )}
-                <div className="mt-6">
+            {/* Right Column: Sticky Reservation */}
+            <aside className="lg:col-span-5">
+              <div className="lg:sticky lg:top-40 space-y-8">
+                <div className="rounded-[2.5rem] bg-white p-6 shadow-2xl shadow-brand-obsidian/10 border border-brand-obsidian/5">
                   <RoomAvailabilityCalendar
                     roomId={room.id}
                     slug={room.slug}
                     basePrice={room.basePrice}
+                    weekendPrice={room.weekendPrice}
                   />
+                </div>
+
+                <div className="text-center py-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-obsidian/20">
+                    Bespoke Concierge Service Available
+                  </p>
                 </div>
               </div>
             </aside>
+
           </div>
         </div>
       </main>

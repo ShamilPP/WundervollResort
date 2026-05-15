@@ -27,11 +27,13 @@ export default async function AdminDashboard() {
   const revenue30d = revenueAgg._sum.totalAmount ?? 0
 
   return (
-    <div>
-      <h1 className="font-serif text-3xl">Dashboard</h1>
-      <p className="text-sm text-muted-foreground">Overview of your resort.</p>
+    <div className="space-y-10">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <h1 className="font-serif text-4xl text-obsidian tracking-tight">Management <span className="text-accent italic font-light">Suite</span></h1>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-obsidian/20">System Status: Operational</p>
+      </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Kpi label="Rooms" value={String(rooms)} />
         <Kpi label="Users" value={String(users)} />
         <Kpi label="Total bookings" value={String(bookings)} />

@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 import { formatINR } from '@/lib/money'
 import { useBookingDraft } from '@/store/booking-draft'
@@ -90,12 +92,23 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-8 lg:grid-cols-3">
-      <div className="space-y-6 lg:col-span-2">
-        <section className="rounded-lg border bg-card p-6">
-          <h2 className="font-serif text-xl">Dates & guests</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <Field label="Check-in">
+    <form onSubmit={submit} className="grid gap-12 lg:grid-cols-12 items-start">
+      {/* Left Column: Form Details */}
+      <div className="lg:col-span-8 space-y-12">
+
+        {/* Section 1: Dates & Guests */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-[2.5rem] border border-obsidian/5 p-6 md:p-10 shadow-sm space-y-8"
+        >
+          <div className="flex items-center gap-4">
+            <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center text-[10px] font-bold text-accent">01</div>
+            <h2 className="font-serif text-3xl text-obsidian tracking-tight">Stay Details</h2>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-3">
+            <Field label="Check-in Date">
               <input
                 type="date"
                 value={checkIn}
@@ -104,7 +117,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
                 className={inputCls}
               />
             </Field>
-            <Field label="Check-out">
+            <Field label="Check-out Date">
               <input
                 type="date"
                 value={checkOut}
@@ -113,7 +126,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
                 className={inputCls}
               />
             </Field>
-            <Field label="Guests">
+            <Field label="Number of Guests">
               <input
                 type="number"
                 min={1}
@@ -125,86 +138,111 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
               />
             </Field>
           </div>
-        </section>
+        </motion.section>
 
-        <section className="rounded-lg border bg-card p-6">
-          <h2 className="font-serif text-xl">Guest details</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Field label="Full name">
+        {/* Section 2: Guest Information */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-[2.5rem] border border-obsidian/5 p-6 md:p-10 shadow-sm space-y-8"
+        >
+          <div className="flex items-center gap-4">
+            <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center text-[10px] font-bold text-accent">02</div>
+            <h2 className="font-serif text-3xl text-obsidian tracking-tight">Guest Information</h2>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-2">
+            <Field label="Full Name">
               <input
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
                 required
+                placeholder="Enter your full name"
                 className={inputCls}
               />
             </Field>
-            <Field label="Email">
+            <Field label="Email Address">
               <input
                 type="email"
                 value={guestEmail}
                 onChange={(e) => setGuestEmail(e.target.value)}
                 required
+                placeholder="you@example.com"
                 className={inputCls}
               />
             </Field>
-            <Field label="Phone (optional)">
+            <Field label="Phone Number">
               <input
                 value={guestPhone}
                 onChange={(e) => setGuestPhone(e.target.value)}
+                placeholder="+91 00000 00000"
                 className={inputCls}
               />
             </Field>
           </div>
-          <Field label="Special requests (optional)" className="mt-4">
+
+          <Field label="Anything else we should know?">
             <textarea
-              rows={3}
+              rows={4}
               value={specialRequests}
               onChange={(e) => setSpecialRequests(e.target.value)}
-              className={`${inputCls} resize-none`}
+              placeholder="Allergies, arrival time, or special occasions..."
+              className={cn(inputCls, "resize-none")}
             />
           </Field>
-        </section>
+        </motion.section>
       </div>
 
-      <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-lg border bg-card p-6">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">
-            Summary
-          </p>
-          <p className="mt-1 font-serif text-xl">{roomName}</p>
+      {/* Right Column: Sticky Summary */}
+      <aside className="lg:col-span-4 lg:sticky lg:top-32">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-obsidian text-accent rounded-[2.5rem] p-6 md:p-10 shadow-2xl space-y-8 border border-white/5"
+        >
+          <div className="space-y-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Booking Summary</p>
+            <h3 className="font-serif text-4xl tracking-tight leading-tight text-accent">{roomName}</h3>
+          </div>
 
-          <div className="mt-6 space-y-2 border-t pt-4 text-sm">
+          <div className="space-y-4 pt-6 border-t border-white/10">
             {quote?.available ? (
               <>
-                <Row label={`${quote.nights} night${quote.nights === 1 ? '' : 's'}`} value={formatINR(quote.subtotal!)} muted />
-                <Row label="Taxes" value={formatINR(quote.taxes!)} muted />
-                <div className="flex justify-between border-t pt-2 font-medium">
-                  <span>Total</span>
-                  <span>{formatINR(quote.total!)}</span>
+                <Row label={`${quote.nights} night${quote.nights === 1 ? '' : 's'}`} value={formatINR(quote.subtotal!)} />
+                <Row label="Taxes & Fees" value={formatINR(quote.taxes!)} />
+                <div className="flex justify-between items-center pt-6 mt-4 border-t border-white/10">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Total Amount</span>
+                  <span className="text-3xl font-serif text-accent">{formatINR(quote.total!)}</span>
                 </div>
               </>
             ) : quote?.error ? (
-              <p className="text-destructive">
-                {quote.error === 'ROOM_UNAVAILABLE'
-                  ? 'Those dates are already booked.'
-                  : 'Those dates are unavailable.'}
-              </p>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                <p className="text-xs text-accent font-black uppercase tracking-widest text-center">
+                  {quote.error === 'ROOM_UNAVAILABLE'
+                    ? 'Dates already booked'
+                    : 'Dates unavailable'}
+                </p>
+              </div>
             ) : (
-              <p className="text-muted-foreground">Pick dates to see pricing.</p>
+              <p className="text-accent italic text-sm text-center py-4">Select dates to see price.</p>
             )}
           </div>
 
           <button
             type="submit"
             disabled={!quote?.available || submitting}
-            className="mt-6 w-full rounded-md bg-primary py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+            className="w-full rounded-2xl bg-white py-5 text-[11px] border font-black uppercase tracking-[0.3em] text-obsidian transition-all duration-500 hover:bg-accent hover:text-white active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed shadow-xl shadow-white/5"
           >
-            {submitting ? 'Creating booking…' : 'Create booking'}
+            {submitting ? 'Reserving…' : 'Confirm & Reserve'}
           </button>
-          <p className="mt-3 text-xs text-muted-foreground">
-            You&apos;ll review and pay on the next step.
-          </p>
-        </div>
+
+          <div className="flex items-center gap-3 justify-center text-[9px] font-bold uppercase tracking-widest text-accent">
+            <div className="h-1.5 w-1.5 rounded-full bg-accent" />
+            <span>Next Step: Payment Details</span>
+          </div>
+        </motion.div>
       </aside>
     </form>
   )
@@ -212,21 +250,21 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
 
 function Field({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <label className={`block space-y-1.5 ${className}`}>
-      <span className="text-sm font-medium">{label}</span>
+    <label className={cn("block space-y-3", className)}>
+      <span className="text-[11px] font-black uppercase tracking-[0.3em] text-obsidian/40">{label}</span>
       {children}
     </label>
   )
 }
 
-function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className={`flex justify-between ${muted ? 'text-muted-foreground' : ''}`}>
-      <span>{label}</span>
-      <span>{value}</span>
+    <div className="flex justify-between items-center text-sm">
+      <span className="text-accent font-bold uppercase tracking-widest text-[10px]">{label}</span>
+      <span className="font-serif text-xl text-accent">{value}</span>
     </div>
   )
 }
 
 const inputCls =
-  'w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
+  'w-full rounded-2xl border border-obsidian/5 bg-[#FDFCFB] px-5 py-4 text-sm font-bold text-obsidian placeholder:text-obsidian/20 focus:outline-none focus:border-accent transition-all duration-300'

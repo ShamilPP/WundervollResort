@@ -12,6 +12,7 @@ type Props = {
   roomId: string
   slug: string
   basePrice: number
+  weekendPrice?: number | null
 }
 
 type Unavailable = {
@@ -53,11 +54,12 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
         data.blocked?.forEach((b) => expand(b.from, b.to))
         setDisabled(dates)
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [roomId])
 
   useEffect(() => {
-    if (!range?.from || !range?.to) {
+    // Only call API if we have two different dates
+    if (!range?.from || !range?.to || range.from.getTime() === range.to.getTime()) {
       setQuote(null)
       return
     }
@@ -77,7 +79,7 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
   }, [range, roomId])
 
   function proceed() {
-    if (!range?.from || !range?.to || !quote?.available) return
+    if (!range?.from || !range?.to) return
     setRoom(roomId)
     setDates(range.from.toISOString(), range.to.toISOString())
     router.push(`/booking/${roomId}`)
@@ -85,19 +87,25 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
 
   return (
     <div>
-      <DayPicker
-        mode="range"
-        selected={range}
-        onSelect={setRange}
-        disabled={[{ before: new Date() }, ...disabled]}
-        numberOfMonths={1}
-        className="!font-sans"
-      />
+      <div className='flex items-center justify-center'>
+        <DayPicker
+          mode="range"
+          selected={range}
+          onSelect={setRange}
+          disabled={[{ before: new Date() }, ...disabled]}
+          numberOfMonths={1}
+          className="!font-sans"
+        />
+      </div>
 
       <div className="mt-4 space-y-2 border-t pt-4 text-sm">
-        {!range?.from || !range?.to ? (
+        {!range?.from ? (
           <p className="text-muted-foreground">
             Pick check-in and check-out dates to see pricing.
+          </p>
+        ) : !range?.to || range.from.getTime() === range.to.getTime() ? (
+          <p className="text-brand-obsidian font-bold">
+            Now select your departure date.
           </p>
         ) : loading ? (
           <p className="text-muted-foreground">Calculating…</p>
@@ -126,9 +134,7 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
           <p className="text-destructive">
             {quote?.error === 'ROOM_UNAVAILABLE'
               ? 'Those dates are already booked.'
-              : quote?.error === 'DATES_BLOCKED'
-                ? 'Those dates are blocked for maintenance.'
-                : 'Those dates are unavailable.'}
+              : 'Those dates are unavailable.'}
           </p>
         )}
       </div>

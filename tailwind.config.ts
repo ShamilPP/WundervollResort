@@ -41,10 +41,10 @@ const config: Config = {
           foreground: 'hsl(var(--card-foreground))',
         },
         brand: {
-          sand: '#E8DCC4',
-          ocean: '#1E3A4C',
-          sunset: '#C97B5A',
-          leaf: '#2D5A3D',
+          ivory: '#FDFCF0',
+          obsidian: '#1A1A1A',
+          royal: '#003366',
+          emerald: '#1E3A34',
         },
       },
       fontFamily: {

@@ -206,6 +206,7 @@ enum PaymentStatus {
 
 enum PaymentMethod {
   STRIPE
+  RAZORPAY
   DEMO
   CASH_ON_ARRIVAL
 }
@@ -222,6 +223,11 @@ model Payment {
 
   stripePaymentIntentId String? @unique
   stripeChargeId        String?
+  
+  razorpayOrderId       String? @unique
+  razorpayPaymentId     String? @unique
+  razorpaySignature     String?
+
   receiptUrl            String?
 
   metadata Json?
