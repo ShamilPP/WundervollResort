@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     // Razorpay works in Paisa (1 INR = 100 Paisa)
     const options = {
-      amount: Math.round(booking.totalAmount * 100),
+      amount: booking.totalAmount,
       currency: 'INR',
       receipt: `receipt_${bookingId}`,
     }

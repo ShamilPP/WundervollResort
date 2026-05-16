@@ -32,6 +32,17 @@ export async function PATCH(
     const featuresStr = formData.get('features') as string
     const features = JSON.parse(featuresStr || '[]') as RoomFeature[]
 
+    // Check for duplicate slug
+    const existing = await prisma.room.findFirst({
+      where: {
+        slug,
+        id: { not: params.id }
+      }
+    })
+    if (existing) {
+      return NextResponse.json({ error: 'Slug already exists on another residence' }, { status: 409 })
+    }
+
     // Update basic info
     await prisma.room.update({
       where: { id: params.id },

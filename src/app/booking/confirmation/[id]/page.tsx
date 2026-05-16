@@ -107,7 +107,7 @@ export default async function ConfirmationPage({
                   </Link>
                   <Link
                     href="/rooms"
-                    className="flex-1 rounded-2xl bg-obsidian px-8 py-5 text-center text-[11px] font-black uppercase tracking-widest text-white hover:bg-accent transition-all"
+                    className="flex-1 rounded-2xl bg-accent px-8 py-5 text-center text-[11px] font-black uppercase tracking-widest text-white hover:bg-accent transition-all"
                   >
                     Browse More
                   </Link>
@@ -137,16 +137,16 @@ export default async function ConfirmationPage({
               ) : (
                 <div className="bg-obsidian text-white rounded-[2.5rem] p-10 shadow-2xl space-y-8 text-center border border-white/5">
                   <MapPin className="h-10 w-10 text-accent mx-auto" />
-                  <div className="space-y-4">
+                  <div className="space-y-4 text-accent">
                     <h3 className="font-serif text-3xl">Find Us</h3>
-                    <p className="text-sm font-light text-white/40 italic leading-relaxed">
+                    <p className="text-sm font-light italic leading-relaxed">
                       Wundervoll Resort, Coast Road,<br />
                       Konkan Coast, India.
                     </p>
                   </div>
                   <div className="pt-6 border-t border-white/10">
                     <p className="text-[10px] font-black uppercase tracking-widest text-accent mb-4">Arrival Policy</p>
-                    <p className="text-xs font-light text-white/60">Check-in: 2:00 PM · Check-out: 11:00 AM</p>
+                    <p className="text-xs font-light">Check-in: 2:00 PM · Check-out: 11:00 AM</p>
                   </div>
                 </div>
               )}

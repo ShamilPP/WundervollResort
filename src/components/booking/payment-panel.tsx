@@ -83,8 +83,8 @@ export function PaymentPanel({
             const verifyData = await verifyRes.json()
             if (!verifyRes.ok) throw new Error(verifyData.error ?? 'Verification failed')
 
-            toast.success('Your stay is confirmed. Welcome to Wundervoll.')
-            router.refresh()
+            toast.success('Payment verified! Redirecting to your confirmation...')
+            router.push(`/booking/success/${bookingId}`)
           } catch (err) {
             toast.error((err as Error).message)
             setLoading(false)

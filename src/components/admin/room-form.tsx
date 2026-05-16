@@ -95,6 +95,28 @@ export function RoomForm({ mode, initial }: Props) {
     setExistingImages(prev => prev.filter(img => img.publicId !== publicId))
   }
 
+  async function handleDelete() {
+    if (!confirm('Are you sure you want to delete this residence? This action cannot be undone.')) return
+    
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/admin/rooms/${initial!.id}`, {
+        method: 'DELETE',
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Delete failed')
+
+      toast.success('Room deleted successfully')
+      router.push('/admin/rooms')
+      router.refresh()
+    } catch (err) {
+      toast.error((err as Error).message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -260,6 +282,8 @@ export function RoomForm({ mode, initial }: Props) {
           {mode === 'edit' && (
             <button
               type="button"
+              onClick={handleDelete}
+              disabled={saving}
               className="rounded-xl border border-destructive/20 px-6 py-3 text-[11px] font-black uppercase tracking-widest text-destructive hover:bg-destructive/5 disabled:opacity-50 transition-colors"
             >
               Delete residence

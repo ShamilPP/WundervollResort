@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Plus, Pencil } from 'lucide-react'
 
 import { prisma } from '@/lib/db'
 import { formatINR } from '@/lib/money'
@@ -72,7 +72,7 @@ export default async function AdminRoomsPage() {
                     className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-obsidian/5 text-obsidian/40 hover:bg-accent hover:text-white transition-all shadow-sm"
                   >
                     <span className="sr-only">Edit</span>
-                    <Plus className="h-4 w-4 rotate-45" />
+                    <Pencil className="h-3.5 w-3.5" />
                   </Link>
                 </Td>
               </tr>
@@ -85,10 +85,10 @@ export default async function AdminRoomsPage() {
 }
 
 const Th = ({ children }: { children?: React.ReactNode }) => (
-  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+  <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.3em] text-obsidian/30 border-b border-obsidian/5 bg-[#FDFCFB]/50">
     {children}
   </th>
 )
-const Td = ({ children }: { children?: React.ReactNode }) => (
-  <td className="px-4 py-3">{children}</td>
+const Td = ({ children, className = '' }: { children?: React.ReactNode, className?: string }) => (
+  <td className={cn("px-8 py-6", className)}>{children}</td>
 )
