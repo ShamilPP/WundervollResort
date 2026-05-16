@@ -50,3 +50,5 @@ See [`.env.example`](./.env.example). `.env.local` is created with working defau
 ## Docs
 
 Full architecture in [`docs/`](./docs/).
+
+edit from authour
