@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/footer'
 import { RoomsHero } from '@/components/rooms/rooms-hero'
 import { RoomCard } from '@/components/rooms/room-card'
 import { RoomFilters } from '@/components/rooms/room-filters'
+import { getAvailableRoomIds } from '@/lib/availability'
 
 export const metadata: Metadata = {
   title: 'Rooms · Wundervoll Resort',
@@ -16,16 +17,42 @@ export const metadata: Metadata = {
 export default async function RoomsPage({
   searchParams,
 }: {
-  searchParams: { type?: string; guests?: string; sort?: string }
+  searchParams: { 
+    type?: string; 
+    guests?: string; 
+    sort?: string;
+    checkIn?: string;
+    checkOut?: string;
+  }
 }) {
   const where: Prisma.RoomWhereInput = { isActive: true }
 
+  // 1. Filter by Type
   if (searchParams.type && Object.values(RoomType).includes(searchParams.type as RoomType)) {
     where.type = searchParams.type as RoomType
   }
+
+  // 2. Filter by Guests (Standard logic)
   if (searchParams.guests) {
     const min = parseInt(searchParams.guests, 10)
-    if (!isNaN(min)) where.maxGuests = { gte: min }
+    if (!isNaN(min)) {
+      // If guests > 3, we still show rooms but we'll add a warning in the UI/Filters
+      // For now, we filter by maxGuests
+      where.maxGuests = { gte: Math.min(min, 3) } 
+    }
+  }
+
+  // 3. Filter by Availability
+  if (searchParams.checkIn && searchParams.checkOut) {
+    try {
+      const availableIds = await getAvailableRoomIds(
+        new Date(searchParams.checkIn),
+        new Date(searchParams.checkOut)
+      )
+      where.id = { in: availableIds }
+    } catch (e) {
+      console.error('Availability filter failed', e)
+    }
   }
 
   let orderBy: Prisma.RoomOrderByWithRelationInput = { sortOrder: 'asc' }

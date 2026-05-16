@@ -13,6 +13,8 @@ const schema = z.object({
   checkIn: z.string().min(1),
   checkOut: z.string().min(1),
   guestCount: z.number().int().min(1),
+  adults: z.number().int().min(1).optional(),
+  children: z.number().int().min(0).optional(),
   guestName: z.string().min(2),
   guestEmail: z.string().email(),
   guestPhone: z.string().optional(),
@@ -45,7 +47,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: avail.reason }, { status: 409 })
   }
 
-  const price = await calculatePrice(parsed.data.roomId, ci, co)
+  const adults = parsed.data.adults ?? parsed.data.guestCount ?? 1
+  const children = parsed.data.children ?? 0
+
+  const price = await calculatePrice(parsed.data.roomId, ci, co, adults, children)
 
   const booking = await prisma.booking.create({
     data: {
@@ -55,7 +60,9 @@ export async function POST(req: Request) {
       checkIn: ci,
       checkOut: co,
       nights: nightsBetween(ci, co),
-      guestCount: parsed.data.guestCount,
+      adults: adults,
+      children: children,
+      guestCount: adults + children,
       guestName: parsed.data.guestName,
       guestEmail: parsed.data.guestEmail,
       guestPhone: parsed.data.guestPhone,

@@ -15,6 +15,8 @@ export async function calculatePrice(
   roomId: string,
   checkIn: Date | string,
   checkOut: Date | string,
+  adults: number = 2,
+  children: number = 0,
 ): Promise<PriceBreakdown> {
   const ci = normalizeDate(checkIn)
   const co = normalizeDate(checkOut)
@@ -33,6 +35,13 @@ export async function calculatePrice(
   const nightly: PriceBreakdown['nightly'] = []
   let subtotal = 0
 
+  // Calculate extra person charges per night
+  // Base price usually covers 2 adults
+  const extraAdults = Math.max(0, adults - 2)
+  const extraAdultCharge = extraAdults * (room.extraAdultPrice || 1500)
+  const childrenCharge = children * (room.extraChildPrice || 750)
+  const totalExtraCharge = extraAdultCharge + childrenCharge
+
   for (let i = 0; i < nights; i++) {
     const day = new Date(ci)
     day.setUTCDate(day.getUTCDate() + i)
@@ -43,11 +52,14 @@ export async function calculatePrice(
       (s) => day >= normalizeDate(s.startDate) && day < normalizeDate(s.endDate),
     )
 
-    const amount = season
+    let amount = season
       ? season.price
       : isWeekend && room.weekendPrice
         ? room.weekendPrice
         : room.basePrice
+    
+    // Add extra person charges
+    amount += totalExtraCharge
 
     nightly.push({ date: day.toISOString().split('T')[0], amount })
     subtotal += amount

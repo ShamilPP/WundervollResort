@@ -1,13 +1,18 @@
 'use client'
-import Link from 'next/link'
+
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import type { Room, RoomImage } from '@prisma/client'
 import { formatINR } from '@/lib/money'
+import Link from 'next/link'
 
 export function RoomCard({ room }: { room: Room & { images: RoomImage[] } }) {
+  const searchParams = useSearchParams()
   const img = room.images.find((i) => i.isPrimary) ?? room.images[0]
   const url = img?.url ?? placeholderFor(room.slug)
-  
+
+  const href = `/rooms/${room.slug}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -16,7 +21,7 @@ export function RoomCard({ room }: { room: Room & { images: RoomImage[] } }) {
       transition={{ duration: 0.5 }}
     >
       <Link
-        href={`/rooms/${room.slug}`}
+        href={href}
         className="group relative block overflow-hidden rounded-[2.5rem] bg-obsidian aspect-[4/5] shadow-xl"
       >
         {/* Background Image */}
@@ -24,7 +29,7 @@ export function RoomCard({ room }: { room: Room & { images: RoomImage[] } }) {
           className="absolute inset-0 bg-cover bg-center transition duration-[1200ms] scale-100 group-hover:scale-110 opacity-90 group-hover:opacity-100"
           style={{ backgroundImage: `url('${url}')` }}
         />
-        
+
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian/90 via-obsidian/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
@@ -43,11 +48,11 @@ export function RoomCard({ room }: { room: Room & { images: RoomImage[] } }) {
                   </span>
                 </div>
               </div>
-              
+
               <h3 className="font-serif text-2xl text-white font-bold tracking-wide">
                 {room.name}
               </h3>
-              
+
               <div className="flex items-center justify-between text-[9px] text-white/50 font-black uppercase tracking-widest border-t border-white/5 pt-4">
                 <span>{room.maxGuests} Guests</span>
                 <div className="h-1 w-1 rounded-full bg-accent/40" />

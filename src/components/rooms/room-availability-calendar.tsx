@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { DayPicker, type DateRange } from 'react-day-picker'
-import { useRouter } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import 'react-day-picker/style.css'
 
 import { formatINR } from '@/lib/money'
@@ -31,12 +31,25 @@ type Quote = {
 
 export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
   const router = useRouter()
-  const [range, setRange] = useState<DateRange | undefined>()
+  const searchParams = useSearchParams()
+
+  // Initialize range from search params
+  const [range, setRange] = useState<DateRange | undefined>(() => {
+    const checkIn = searchParams.get('checkIn')
+    const checkOut = searchParams.get('checkOut')
+    if (checkIn && checkOut) {
+      return { from: new Date(checkIn), to: new Date(checkOut) }
+    }
+    return undefined
+  })
+
   const [disabled, setDisabled] = useState<Date[]>([])
   const [quote, setQuote] = useState<Quote | null>(null)
   const [loading, setLoading] = useState(false)
   const setRoom = useBookingDraft((s) => s.setRoom)
   const setDates = useBookingDraft((s) => s.setDates)
+  const setGuestCount = useBookingDraft((s) => s.setGuestCount)
+  const setGuestsSplit = useBookingDraft((s) => s.setGuestsSplit)
 
   useEffect(() => {
     fetch(`/api/rooms/${roomId}/availability`)
@@ -63,6 +76,10 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
       setQuote(null)
       return
     }
+
+    const adults = parseInt(searchParams.get('adults') ?? '2', 10)
+    const children = parseInt(searchParams.get('children') ?? '0', 10)
+
     setLoading(true)
     fetch('/api/bookings/quote', {
       method: 'POST',
@@ -71,23 +88,36 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
         roomId,
         checkIn: range.from.toISOString(),
         checkOut: range.to.toISOString(),
+        adults,
+        children,
       }),
     })
       .then((r) => r.json())
       .then((q) => setQuote(q))
       .finally(() => setLoading(false))
-  }, [range, roomId])
+  }, [range, roomId, searchParams])
 
   function proceed() {
     if (!range?.from || !range?.to) return
     setRoom(roomId)
     setDates(range.from.toISOString(), range.to.toISOString())
+    
+    const adults = searchParams.get('adults')
+    const children = searchParams.get('children')
+    const guests = searchParams.get('guests')
+
+    if (adults && children) {
+      setGuestsSplit(parseInt(adults, 10), parseInt(children, 10))
+    } else if (guests) {
+      setGuestCount(parseInt(guests, 10))
+    }
+    
     router.push(`/booking/${roomId}`)
   }
 
   return (
-    <div>
-      <div className='flex items-center justify-center'>
+    <div className="space-y-6">
+      <div className="flex items-center justify-center p-4 bg-[#FDFCFB] rounded-3xl border border-brand-obsidian/5">
         <DayPicker
           mode="range"
           selected={range}
@@ -98,50 +128,61 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
         />
       </div>
 
-      <div className="mt-4 space-y-2 border-t pt-4 text-sm">
+      <div className="space-y-6 pt-4 border-t border-brand-obsidian/5">
         {!range?.from ? (
-          <p className="text-muted-foreground">
-            Pick check-in and check-out dates to see pricing.
+          <p className="text-xs font-medium text-brand-obsidian/30 uppercase tracking-[0.2em] text-center">
+            Pick check-in and check-out dates
           </p>
         ) : !range?.to || range.from.getTime() === range.to.getTime() ? (
-          <p className="text-brand-obsidian font-bold">
-            Now select your departure date.
+          <p className="text-xs font-bold text-accent uppercase tracking-widest text-center animate-pulse">
+            Now select your departure date
           </p>
         ) : loading ? (
-          <p className="text-muted-foreground">Calculating…</p>
+          <p className="text-center text-brand-obsidian/40 italic">Calculating investment…</p>
         ) : quote?.available ? (
-          <>
-            <div className="flex justify-between text-muted-foreground">
-              <span>{quote.nights} night{quote.nights === 1 ? '' : 's'}</span>
-              <span>{formatINR(quote.subtotal!)}</span>
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-obsidian/40">{quote.nights} night{quote.nights === 1 ? '' : 's'} stay</span>
+                <span className="font-bold text-brand-obsidian">{formatINR(quote.subtotal!)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-obsidian/40">Luxury Taxes</span>
+                <span className="font-bold text-brand-obsidian">{formatINR(quote.taxes!)}</span>
+              </div>
             </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>Taxes</span>
-              <span>{formatINR(quote.taxes!)}</span>
+
+            <div className="flex justify-between items-center border-t border-brand-obsidian/5 pt-4">
+              <span className="text-xs font-black uppercase tracking-[0.4em] text-brand-obsidian">Total</span>
+              <span className="text-2xl font-serif font-bold text-accent">{formatINR(quote.total!)}</span>
             </div>
-            <div className="flex justify-between border-t pt-2 text-base font-medium">
-              <span>Total</span>
-              <span>{formatINR(quote.total!)}</span>
-            </div>
+
             <button
               onClick={proceed}
-              className="mt-3 w-full rounded-md bg-primary py-3 text-sm font-medium text-primary-foreground hover:opacity-90"
+              className="w-full rounded-2xl bg-brand-obsidian py-5 text-[11px] font-black uppercase tracking-[0.3em] text-white hover:bg-accent transition-all duration-500 shadow-xl shadow-brand-obsidian/10 active:scale-95"
             >
-              Reserve now
+              Confirm Reservation
             </button>
-          </>
+          </div>
         ) : (
-          <p className="text-destructive">
-            {quote?.error === 'ROOM_UNAVAILABLE'
-              ? 'Those dates are already booked.'
-              : 'Those dates are unavailable.'}
-          </p>
+          <div className="p-6 rounded-2xl bg-destructive/5 border border-destructive/10 text-center">
+            <p className="text-xs font-bold text-destructive uppercase tracking-widest">
+              {quote?.error === 'ROOM_UNAVAILABLE'
+                ? 'Dates already claimed'
+                : 'Sanctuary unavailable'}
+            </p>
+          </div>
         )}
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">
-        From {formatINR(basePrice)} per night · Room {slug}
-      </p>
+      <div className="flex items-center justify-between pt-4">
+        <p className="text-[9px] font-black uppercase tracking-widest text-brand-obsidian/20">
+          Residence {slug}
+        </p>
+        <p className="text-[9px] font-black uppercase tracking-widest text-brand-obsidian/20">
+          From {formatINR(basePrice)} / Night
+        </p>
+      </div>
     </div>
   )
 }

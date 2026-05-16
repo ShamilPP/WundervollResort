@@ -30,7 +30,8 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
   const draft = useBookingDraft()
   const [checkIn, setCheckIn] = useState(draft.checkIn?.split('T')[0] ?? '')
   const [checkOut, setCheckOut] = useState(draft.checkOut?.split('T')[0] ?? '')
-  const [guestCount, setGuestCount] = useState(draft.guestCount || 1)
+  const [adults, setAdults] = useState(draft.adults || 1)
+  const [children, setChildren] = useState(draft.children || 0)
   const [guestName, setGuestName] = useState(user.name ?? '')
   const [guestEmail, setGuestEmail] = useState(user.email ?? '')
   const [guestPhone, setGuestPhone] = useState('')
@@ -50,12 +51,14 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
         roomId,
         checkIn: new Date(checkIn).toISOString(),
         checkOut: new Date(checkOut).toISOString(),
+        adults,
+        children,
       }),
     })
       .then((r) => r.json())
       .then(setQuote)
       .catch(() => setQuote(null))
-  }, [checkIn, checkOut, roomId])
+  }, [checkIn, checkOut, roomId, adults, children])
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -72,7 +75,9 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
           roomId,
           checkIn: new Date(checkIn).toISOString(),
           checkOut: new Date(checkOut).toISOString(),
-          guestCount,
+          adults,
+          children,
+          guestCount: adults + children,
           guestName,
           guestEmail,
           guestPhone: guestPhone || undefined,
@@ -107,8 +112,8 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
             <h2 className="font-serif text-3xl text-obsidian tracking-tight">Stay Details</h2>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-3">
-            <Field label="Check-in Date">
+          <div className="grid gap-8 sm:grid-cols-4">
+            <Field label="Check-in">
               <input
                 type="date"
                 value={checkIn}
@@ -117,7 +122,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
                 className={inputCls}
               />
             </Field>
-            <Field label="Check-out Date">
+            <Field label="Check-out">
               <input
                 type="date"
                 value={checkOut}
@@ -126,16 +131,23 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
                 className={inputCls}
               />
             </Field>
-            <Field label="Number of Guests">
-              <input
-                type="number"
-                min={1}
-                max={maxGuests}
-                value={guestCount}
-                onChange={(e) => setGuestCount(parseInt(e.target.value, 10))}
-                required
+            <Field label="Adults">
+              <select
+                value={adults}
+                onChange={(e) => setAdults(parseInt(e.target.value, 10))}
                 className={inputCls}
-              />
+              >
+                {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>)}
+              </select>
+            </Field>
+            <Field label="Children">
+              <select
+                value={children}
+                onChange={(e) => setChildren(parseInt(e.target.value, 10))}
+                className={inputCls}
+              >
+                {[0, 1, 2, 3].map(n => <option key={n} value={n}>{n} {n === 1 ? 'Child' : 'Children'}</option>)}
+              </select>
             </Field>
           </div>
         </motion.section>

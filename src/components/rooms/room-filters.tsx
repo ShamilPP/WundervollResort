@@ -4,7 +4,7 @@ import { RoomType } from '@prisma/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
 import { cn } from '@/lib/utils'
-import { Users, SortDesc, Filter } from 'lucide-react'
+import { Calendar, Users, SortDesc, Filter, AlertCircle } from 'lucide-react'
 
 export function RoomFilters() {
   const router = useRouter()
@@ -15,25 +15,120 @@ export function RoomFilters() {
     type: params.get('type') ?? '',
     guests: params.get('guests') ?? '',
     sort: params.get('sort') ?? 'sortOrder',
+    checkIn: params.get('checkIn') ?? '',
+    checkOut: params.get('checkOut') ?? '',
+    adults: params.get('adults') ?? '1',
+    children: params.get('children') ?? '0',
   }
 
   function update(next: Partial<typeof current>) {
     const sp = new URLSearchParams(params.toString())
     const merged = { ...current, ...next }
 
+    // Sync guests if adults or children changed
+    if (next.adults || next.children) {
+      merged.guests = (parseInt(merged.adults) + parseInt(merged.children)).toString()
+    }
+
     for (const [k, v] of Object.entries(merged)) {
       if (v) sp.set(k, v)
       else sp.delete(k)
     }
 
-    // { scroll: false } prevents the page from jumping back to the top
     startTransition(() => router.push(`/rooms?${sp.toString()}`, { scroll: false }))
   }
 
+  const totalGuests = parseInt(current.adults) + parseInt(current.children)
+  const showCapacityWarning = totalGuests > 3
+
   return (
     <div className="flex flex-col gap-10">
-      {/* 1. Room Type Selection */}
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      {/* 1. Date & Capacity Search Bar (Primary) */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
+        <div className="flex flex-col gap-3">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+            <Calendar className="h-3 w-3" /> Check-in
+          </label>
+          <input
+            type="date"
+            value={current.checkIn}
+            min={new Date().toISOString().split('T')[0]}
+            onChange={(e) => update({ checkIn: e.target.value })}
+            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors [color-scheme:dark]"
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+            <Calendar className="h-3 w-3" /> Check-out
+          </label>
+          <input
+            type="date"
+            value={current.checkOut}
+            min={current.checkIn || new Date().toISOString().split('T')[0]}
+            onChange={(e) => update({ checkOut: e.target.value })}
+            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors [color-scheme:dark]"
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+            <Users className="h-3 w-3" /> Adults
+          </label>
+          <select
+            value={current.adults}
+            onChange={(e) => update({ adults: e.target.value })}
+            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
+          >
+            {[1, 2, 3, 4].map(n => (
+              <option key={n} value={n.toString()} className="bg-obsidian text-white">{n} Adult{n > 1 ? 's' : ''}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+            <Users className="h-3 w-3" /> Children
+          </label>
+          <select
+            value={current.children}
+            onChange={(e) => update({ children: e.target.value })}
+            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
+          >
+            {[0, 1, 2, 3].map(n => (
+              <option key={n} value={n.toString()} className="bg-obsidian text-white">{n} Child{n !== 1 ? 'ren' : ''}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+            <SortDesc className="h-3 w-3" /> Sort By
+          </label>
+          <select
+            value={current.sort}
+            onChange={(e) => update({ sort: e.target.value })}
+            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
+          >
+            <option value="sortOrder" className="bg-obsidian text-white">Featured</option>
+            <option value="price-asc" className="bg-obsidian text-white">Price: Low to High</option>
+            <option value="price-desc" className="bg-obsidian text-white">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Capacity Warning */}
+      {showCapacityWarning && (
+        <div className="flex items-center gap-4 bg-accent/10 border border-accent/20 p-6 rounded-3xl animate-in fade-in slide-in-from-top-4">
+          <AlertCircle className="h-5 w-5 text-accent shrink-0" />
+          <p className="text-sm text-accent/90 font-medium">
+            Our residences accommodate a <span className="font-black">maximum of 3 guests</span> each. For groups of {current.guests}, please consider selecting <span className="font-black">multiple rooms</span> to ensure comfort.
+          </p>
+        </div>
+      )}
+
+      {/* 2. Room Type Pills */}
+      <div className="flex flex-wrap items-center justify-center gap-3 border-t border-white/10 pt-10">
         <FilterPill
           active={current.type === ''}
           onClick={() => update({ type: '' })}
@@ -49,61 +144,10 @@ export function RoomFilters() {
         ))}
       </div>
 
-      {/* 2. Secondary Filters: Capacity & Sort */}
-      <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-8 border-t border-white/10 pt-10">
-        {/* Capacity Selector */}
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2.5 text-white/40">
-            <Users className="h-4 w-4" />
-            <span className="text-xs uppercase tracking-[0.2em] font-black">Capacity</span>
-          </div>
-          <div className="flex items-center gap-6">
-            {['', '2', '4', '6'].map((g) => (
-              <button
-                key={g}
-                onClick={() => update({ guests: g })}
-                className={cn(
-                  "text-[13px] font-bold tracking-wide transition-all duration-300",
-                  current.guests === g ? "text-accent underline underline-offset-[10px] decoration-2" : "text-white/60 hover:text-white"
-                )}
-              >
-                {g === '' ? 'Any' : `${g}+ Guests`}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Sort Selector */}
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2.5 text-white/40">
-            <SortDesc className="h-4 w-4" />
-            <span className="text-xs uppercase tracking-[0.2em] font-black">Sort By</span>
-          </div>
-          <div className="flex items-center gap-6">
-            {[
-              { id: 'sortOrder', label: 'Featured' },
-              { id: 'price-asc', label: 'Price ↓' },
-              { id: 'price-desc', label: 'Price ↑' }
-            ].map((s) => (
-              <button
-                key={s.id}
-                onClick={() => update({ sort: s.id })}
-                className={cn(
-                  "text-[13px] font-bold tracking-wide transition-all duration-300",
-                  current.sort === s.id ? "text-accent underline underline-offset-[10px] decoration-2" : "text-white/60 hover:text-white"
-                )}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {isPending && (
-        <div className="absolute top-4 right-8">
-          <span className="text-[11px] uppercase tracking-[0.2em] text-accent animate-pulse font-bold">
-            Refreshing Gallery…
+        <div className="fixed top-8 right-8 z-50">
+          <span className="text-[10px] uppercase tracking-[0.4em] text-accent animate-pulse font-black bg-obsidian/80 backdrop-blur-xl px-6 py-3 rounded-full border border-accent/20">
+            Checking Sanctuary Availability…
           </span>
         </div>
       )}

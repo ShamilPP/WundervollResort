@@ -111,6 +111,8 @@ model Room {
 
   basePrice    Int
   weekendPrice Int?
+  extraAdultPrice Int @default(1500)
+  extraChildPrice Int @default(750)
 
   features RoomFeature[]
 
@@ -170,6 +172,8 @@ model Booking {
   checkOut DateTime
   nights   Int
 
+  adults          Int     @default(1)
+  children        Int     @default(0)
   guestCount      Int     @default(1)
   guestName       String
   guestEmail      String

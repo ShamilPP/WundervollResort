@@ -9,6 +9,8 @@ const schema = z.object({
   roomId: z.string().min(1),
   checkIn: z.string().min(1),
   checkOut: z.string().min(1),
+  adults: z.number().optional(),
+  children: z.number().optional(),
 })
 
 export async function POST(req: Request) {
@@ -30,7 +32,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const breakdown = await calculatePrice(parsed.data.roomId, ci, co)
+    const breakdown = await calculatePrice(
+      parsed.data.roomId, 
+      ci, 
+      co, 
+      parsed.data.adults ?? 2, 
+      parsed.data.children ?? 0
+    )
     return NextResponse.json({ available: true, ...breakdown })
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 })
