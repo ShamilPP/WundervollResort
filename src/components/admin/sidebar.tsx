@@ -11,15 +11,17 @@ import {
   BarChart3,
   Settings,
   Home,
+  Image as ImageIcon,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
 const nav = [
   { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard },
-  { href: '/admin/rooms', label: 'Rooms', Icon: BedDouble },
   { href: '/admin/bookings', label: 'Bookings', Icon: CalendarDays },
+  { href: '/admin/rooms', label: 'Rooms', Icon: BedDouble },
   { href: '/admin/availability', label: 'Availability', Icon: Calendar },
+  { href: '/admin/gallery', label: 'Gallery', Icon: ImageIcon },
   { href: '/admin/users', label: 'Users', Icon: Users },
   { href: '/admin/analytics', label: 'Analytics', Icon: BarChart3 },
   { href: '/admin/settings', label: 'Settings', Icon: Settings },
@@ -29,14 +31,19 @@ export function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="sticky top-0 flex h-screen w-60 flex-shrink-0 flex-col border-r bg-card">
-      <div className="border-b p-5">
-        <Link href="/admin" className="font-serif text-xl">
-          Wundervoll
-        </Link>
-        <p className="text-xs text-muted-foreground">Admin</p>
+    <aside className="sticky top-0 z-40 flex w-full flex-col border-b bg-obsidian text-white lg:h-screen lg:w-64 lg:flex-shrink-0 lg:border-b-0 lg:border-r">
+      <div className="flex items-center justify-between border-b border-white/5 p-4 lg:p-6 lg:flex-col lg:items-start">
+        <div className="space-y-0.5">
+          <Link href="/admin" className="font-serif text-xl tracking-widest text-accent">
+            Wundervoll
+          </Link>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">Command Suite</p>
+        </div>
+
+        {/* Mobile Toggle would go here if we had many links, but for now a simple horizontal scroll is elegant */}
       </div>
-      <nav className="flex-1 space-y-1 p-3">
+
+      <nav className="flex flex-row overflow-x-auto p-2 scrollbar-hide lg:flex-1 lg:flex-col lg:space-y-2 lg:p-4 lg:overflow-y-auto">
         {nav.map((item) => {
           const active =
             pathname === item.href ||
@@ -46,25 +53,26 @@ export function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition',
+                'flex items-center gap-3 whitespace-nowrap rounded-xl px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all duration-300',
                 active
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-muted',
+                  ? 'bg-accent text-white shadow-lg shadow-accent/20'
+                  : 'hover:bg-white/5 text-black',
               )}
             >
-              <item.Icon className="h-4 w-4" strokeWidth={1.75} />
-              {item.label}
+              <item.Icon className={cn("h-4 w-4", active ? "text-white" : "text-accent")} strokeWidth={1.75} />
+              <span className="lg:inline">{item.label}</span>
             </Link>
           )
         })}
       </nav>
-      <div className="border-t p-3">
+
+      <div className="hidden border-t border-white/5 p-4 lg:block">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
+          className="flex items-center gap-3 rounded-xl px-4 py-3 text-[11px] font-black uppercase tracking-widest hover:bg-white/5 transition-all text-black"
         >
-          <Home className="h-4 w-4" strokeWidth={1.75} />
-          Back to site
+          <Home className="h-4 w-4 text-accent" strokeWidth={1.75} />
+          Back to Sanctuary
         </Link>
       </div>
     </aside>

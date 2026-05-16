@@ -43,9 +43,8 @@ export default async function AdminBookingsPage({
           </p>
         </div>
         <a
-          href={`/api/admin/bookings/export${
-            searchParams.status ? `?status=${searchParams.status}` : ''
-          }`}
+          href={`/api/admin/bookings/export${searchParams.status ? `?status=${searchParams.status}` : ''
+            }`}
           className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
         >
           Export CSV

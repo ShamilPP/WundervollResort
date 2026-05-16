@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
+import { RoomsHero } from '@/components/rooms/rooms-hero'
 import { RoomCard } from '@/components/rooms/room-card'
 import { RoomFilters } from '@/components/rooms/room-filters'
 
@@ -38,29 +39,18 @@ export default async function RoomsPage({
   return (
     <>
       <Navbar />
-      <main className="pt-24">
-        <div className="container py-8">
-          <div className="mb-10 max-w-2xl">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              Our rooms
-            </p>
-            <h1 className="mt-3 font-serif text-4xl md:text-5xl">
-              Choose your view.
-            </h1>
-            <p className="mt-4 text-muted-foreground">
-              Every room has its own story. Ocean, garden, mountain, or a
-              pavilion with a plunge pool.
-            </p>
-          </div>
+      <main className="bg-ivory min-h-screen">
+        <RoomsHero />
 
-          <RoomFilters />
-
+        <div className="container relative z-20 pb-32 pt-20">
           {rooms.length === 0 ? (
-            <p className="py-20 text-center text-muted-foreground">
-              No rooms match your filters.
-            </p>
+            <div className="py-32 text-center">
+              <p className="text-muted-foreground italic">
+                No residences match your current selection.
+              </p>
+            </div>
           ) : (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-x-12 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
               {rooms.map((room) => (
                 <RoomCard key={room.id} room={room} />
               ))}
