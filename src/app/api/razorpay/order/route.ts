@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
-import { razorpay } from '@/lib/razorpay'
+import { getRazorpay } from '@/lib/razorpay'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
   try {
@@ -35,7 +37,7 @@ export async function POST(req: Request) {
       receipt: `receipt_${bookingId}`,
     }
 
-    const order = await razorpay.orders.create(options)
+    const order = await getRazorpay().orders.create(options)
 
     return NextResponse.json({
       orderId: order.id,
