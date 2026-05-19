@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { DayPicker, type DateRange } from 'react-day-picker'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { Minus, Plus } from 'lucide-react'
 import 'react-day-picker/style.css'
 
 import { formatINR } from '@/lib/money'
@@ -13,6 +14,9 @@ type Props = {
   slug: string
   basePrice: number
   weekendPrice?: number | null
+  maxGuests?: number
+  extraAdultPrice?: number | null
+  extraChildPrice?: number | null
 }
 
 type Unavailable = {
@@ -29,7 +33,7 @@ type Quote = {
   error?: string
 }
 
-export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
+export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, extraAdultPrice, extraChildPrice }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -46,10 +50,17 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
   const [disabled, setDisabled] = useState<Date[]>([])
   const [quote, setQuote] = useState<Quote | null>(null)
   const [loading, setLoading] = useState(false)
+  const [adults, setAdults] = useState(() => parseInt(searchParams.get('adults') ?? '2', 10))
+  const [children, setChildren] = useState(() => parseInt(searchParams.get('children') ?? '0', 10))
+  
   const setRoom = useBookingDraft((s) => s.setRoom)
   const setDates = useBookingDraft((s) => s.setDates)
   const setGuestCount = useBookingDraft((s) => s.setGuestCount)
   const setGuestsSplit = useBookingDraft((s) => s.setGuestsSplit)
+  const setStoreSpecialRequests = useBookingDraft((s) => s.setSpecialRequests)
+  const draftNote = useBookingDraft((s) => s.specialRequests)
+
+  const [specialRequests, setSpecialRequests] = useState(draftNote || '')
 
   useEffect(() => {
     fetch(`/api/rooms/${roomId}/availability`)
@@ -77,9 +88,6 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
       return
     }
 
-    const adults = parseInt(searchParams.get('adults') ?? '2', 10)
-    const children = parseInt(searchParams.get('children') ?? '0', 10)
-
     setLoading(true)
     fetch('/api/bookings/quote', {
       method: 'POST',
@@ -95,22 +103,14 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
       .then((r) => r.json())
       .then((q) => setQuote(q))
       .finally(() => setLoading(false))
-  }, [range, roomId, searchParams])
+  }, [range, roomId, adults, children])
 
   function proceed() {
     if (!range?.from || !range?.to) return
     setRoom(roomId)
     setDates(range.from.toISOString(), range.to.toISOString())
-    
-    const adults = searchParams.get('adults')
-    const children = searchParams.get('children')
-    const guests = searchParams.get('guests')
-
-    if (adults && children) {
-      setGuestsSplit(parseInt(adults, 10), parseInt(children, 10))
-    } else if (guests) {
-      setGuestCount(parseInt(guests, 10))
-    }
+    setGuestsSplit(adults, children)
+    setStoreSpecialRequests(specialRequests)
     
     router.push(`/booking/${roomId}`)
   }
@@ -126,6 +126,83 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
           numberOfMonths={1}
           className="!font-sans"
         />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="p-4 rounded-2xl border border-brand-obsidian/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-center md:text-left">
+            <p className="text-xs font-bold text-brand-obsidian">Adults</p>
+            <p className="text-[9px] text-brand-obsidian/40 uppercase tracking-widest mt-1">
+              12+ yrs &bull; +{formatINR(extraAdultPrice || 1500)}/night after 2
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setAdults(Math.max(1, adults - 1))}
+              className="w-8 h-8 rounded-full border border-brand-obsidian/10 flex items-center justify-center hover:bg-brand-obsidian/5"
+            >
+              <Minus className="w-3 h-3 text-brand-obsidian" />
+            </button>
+            <span className="text-sm font-bold w-4 text-center">{adults}</span>
+            <button
+              onClick={() => {
+                if (!maxGuests || adults + children < maxGuests) {
+                  setAdults(adults + 1)
+                }
+              }}
+              className="w-8 h-8 rounded-full border border-brand-obsidian/10 flex items-center justify-center hover:bg-brand-obsidian/5 opacity-80 hover:opacity-100"
+            >
+              <Plus className="w-3 h-3 text-brand-obsidian" />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl border border-brand-obsidian/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-center md:text-left">
+            <p className="text-xs font-bold text-brand-obsidian">Children</p>
+            <p className="text-[9px] text-brand-obsidian/40 uppercase tracking-widest mt-1">
+              0-11 yrs &bull; +{formatINR(extraChildPrice || 750)}/night
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setChildren(Math.max(0, children - 1))}
+              className="w-8 h-8 rounded-full border border-brand-obsidian/10 flex items-center justify-center hover:bg-brand-obsidian/5"
+            >
+              <Minus className="w-3 h-3 text-brand-obsidian" />
+            </button>
+            <span className="text-sm font-bold w-4 text-center">{children}</span>
+            <button
+              onClick={() => {
+                if (!maxGuests || adults + children < maxGuests) {
+                  setChildren(children + 1)
+                }
+              }}
+              className="w-8 h-8 rounded-full border border-brand-obsidian/10 flex items-center justify-center hover:bg-brand-obsidian/5 opacity-80 hover:opacity-100"
+            >
+              <Plus className="w-3 h-3 text-brand-obsidian" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <label className="text-[10px] uppercase tracking-[0.3em] text-brand-obsidian/40 font-black pl-1">
+          Special Requests or Notes
+        </label>
+        <textarea
+          value={specialRequests}
+          onChange={(e) => setSpecialRequests(e.target.value)}
+          placeholder="Any special requests or notes for your stay?"
+          rows={2}
+          className="w-full rounded-2xl border border-brand-obsidian/10 bg-white p-4 text-sm font-bold text-brand-obsidian placeholder:text-brand-obsidian/20 focus:outline-none focus:border-accent transition-all resize-none shadow-sm"
+        />
+      </div>
+
+      <div className="p-3 bg-brand-obsidian/5 rounded-xl border border-brand-obsidian/10 mt-2">
+        <p className="text-[10px] text-brand-obsidian/60 italic leading-relaxed text-center">
+          * Note: The base room rate includes up to 2 adults. Maximum room capacity is {maxGuests || 3} guests. Extra guest charges are applied per night.
+        </p>
       </div>
 
       <div className="space-y-6 pt-4 border-t border-brand-obsidian/5">
@@ -147,7 +224,7 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice }: Props) {
                 <span className="font-bold text-brand-obsidian">{formatINR(quote.subtotal!)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black uppercase tracking-widest text-brand-obsidian/40">Luxury Taxes</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-obsidian/40">Luxury Taxes (12%)</span>
                 <span className="font-bold text-brand-obsidian">{formatINR(quote.taxes!)}</span>
               </div>
             </div>

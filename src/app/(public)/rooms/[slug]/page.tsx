@@ -126,6 +126,9 @@ export default async function RoomDetailPage({
                     slug={room.slug}
                     basePrice={room.basePrice}
                     weekendPrice={room.weekendPrice}
+                    maxGuests={room.maxGuests}
+                    extraAdultPrice={room.extraAdultPrice}
+                    extraChildPrice={room.extraChildPrice}
                   />
                 </div>
 

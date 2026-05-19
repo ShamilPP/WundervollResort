@@ -78,7 +78,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 1 }}
-            className="mx-auto w-full max-w-5xl bg-white/5 backdrop-blur-2xl rounded-[3rem] p-6 md:p-8 border border-white/10 shadow-2xl flex flex-col lg:flex-row items-stretch gap-6"
+            className="mx-auto w-full max-w-5xl bg-white/40 backdrop-blur-2xl rounded-[3rem] p-6 md:p-8 border border-white/10 shadow-2xl flex flex-col lg:flex-row items-stretch gap-6"
           >
             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
               {/* Check In */}

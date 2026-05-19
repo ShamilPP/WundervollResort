@@ -8,10 +8,12 @@ type BookingDraft = {
   guestCount: number
   adults: number
   children: number
+  specialRequests: string
   setRoom: (roomId: string) => void
   setDates: (checkIn: string, checkOut: string) => void
   setGuestCount: (n: number) => void
   setGuestsSplit: (adults: number, children: number) => void
+  setSpecialRequests: (note: string) => void
   clear: () => void
 }
 
@@ -21,10 +23,12 @@ export const useBookingDraft = create<BookingDraft>()(
       guestCount: 1,
       adults: 1,
       children: 0,
+      specialRequests: '',
       setRoom: (roomId) => set({ roomId }),
       setDates: (checkIn, checkOut) => set({ checkIn, checkOut }),
       setGuestCount: (guestCount) => set({ guestCount }),
       setGuestsSplit: (adults, children) => set({ adults, children, guestCount: adults + children }),
+      setSpecialRequests: (specialRequests) => set({ specialRequests }),
       clear: () =>
         set({ 
           roomId: undefined, 
@@ -32,7 +36,8 @@ export const useBookingDraft = create<BookingDraft>()(
           checkOut: undefined, 
           guestCount: 1,
           adults: 1,
-          children: 0
+          children: 0,
+          specialRequests: ''
         }),
     }),
     { name: 'wundervoll-booking-draft' },

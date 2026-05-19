@@ -13,7 +13,7 @@ export function RoomsHero() {
         transition={{ duration: 2, ease: 'easeOut' }}
         className="absolute inset-0 z-0"
       >
-        <div 
+        <div
           className="h-full w-full bg-cover bg-center opacity-70"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=2000&q=80')" }}
         />
@@ -47,7 +47,7 @@ export function RoomsHero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="mx-auto max-w-5xl rounded-[3rem] bg-white/10 backdrop-blur-2xl border border-white/20 p-8 shadow-2xl shadow-obsidian/50"
+            className="mx-auto max-w-5xl rounded-[3rem] bg-white/20 backdrop-blur-2xl border border-white/20 p-8 shadow-2xl shadow-obsidian/50"
           >
             <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-4">
               <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white">

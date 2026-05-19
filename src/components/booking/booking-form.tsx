@@ -35,7 +35,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
   const [guestName, setGuestName] = useState(user.name ?? '')
   const [guestEmail, setGuestEmail] = useState(user.email ?? '')
   const [guestPhone, setGuestPhone] = useState('')
-  const [specialRequests, setSpecialRequests] = useState('')
+  const [specialRequests, setSpecialRequests] = useState(draft.specialRequests || '')
   const [quote, setQuote] = useState<Quote | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -223,7 +223,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
             {quote?.available ? (
               <>
                 <Row label={`${quote.nights} night${quote.nights === 1 ? '' : 's'}`} value={formatINR(quote.subtotal!)} />
-                <Row label="Taxes & Fees" value={formatINR(quote.taxes!)} />
+                <Row label="Taxes & Fees (12%)" value={formatINR(quote.taxes!)} />
                 <div className="flex justify-between items-center pt-6 mt-4 border-t border-white/10">
                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Total Amount</span>
                   <span className="text-3xl font-serif text-accent">{formatINR(quote.total!)}</span>
