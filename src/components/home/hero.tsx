@@ -1,11 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Calendar, Users, Search } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, Users, Search, ChevronDown } from 'lucide-react'
+import { DayPicker } from 'react-day-picker'
+import { format } from 'date-fns'
+import 'react-day-picker/style.css'
 
 export function Hero() {
   const router = useRouter()
@@ -15,6 +18,19 @@ export function Hero() {
     adults: '2',
     children: '0'
   })
+
+  const [openDropdown, setOpenDropdown] = useState<'checkIn' | 'checkOut' | 'adults' | 'children' | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -26,6 +42,13 @@ export function Hero() {
     // For backward compatibility or combined guest count if needed:
     sp.set('guests', (parseInt(search.adults) + parseInt(search.children)).toString())
     router.push(`/rooms?${sp.toString()}`)
+  }
+
+  // Helper for animated dropdowns
+  const dropdownVariants = {
+    hidden: { opacity: 0, y: 10, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: 10, scale: 0.95 }
   }
 
   return (
@@ -73,7 +96,8 @@ export function Hero() {
           </div>
 
           {/* Quick Search Panel */}
-          <motion.form 
+          <motion.form
+            ref={formRef}
             onSubmit={handleSearch}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -82,68 +106,177 @@ export function Hero() {
           >
             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
               {/* Check In */}
-              <div className="flex flex-col gap-3 p-4 text-left border-r border-white/5 group">
+              <div className="flex flex-col gap-3 p-4 text-left border-r border-white/5 group relative">
                 <label className="text-[9px] font-black uppercase tracking-[0.4em] text-accent flex items-center gap-2 group-hover:text-white transition-colors">
                   <Calendar className="h-3 w-3" /> Check-In
                 </label>
-                <div className="relative">
-                  <input 
-                    type="date" 
-                    required
-                    value={search.checkIn}
-                    onChange={(e) => setSearch(prev => ({ ...prev, checkIn: e.target.value }))}
-                    className="bg-transparent text-base font-bold text-white outline-none w-full cursor-pointer [color-scheme:dark]"
-                  />
+                <div
+                  onClick={() => setOpenDropdown(openDropdown === 'checkIn' ? null : 'checkIn')}
+                  className="bg-transparent text-base font-bold text-white outline-none w-full cursor-pointer flex justify-between items-center group-hover:text-accent transition-colors"
+                >
+                  <span>{search.checkIn ? format(new Date(search.checkIn), 'MMM d, yyyy') : 'Select Date'}</span>
+                  <ChevronDown className="w-4 h-4 opacity-50" />
                 </div>
+                <AnimatePresence>
+                  {openDropdown === 'checkIn' && (
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute bottom-full left-0 mb-4 origin-bottom bg-white border border-black/10 rounded-2xl shadow-2xl p-4 z-50 overflow-hidden"
+                    >
+                      <DayPicker
+                        mode="single"
+                        selected={search.checkIn ? new Date(search.checkIn) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            setSearch(prev => ({ ...prev, checkIn: format(date, 'yyyy-MM-dd') }))
+                            setOpenDropdown('checkOut')
+                          }
+                        }}
+                        disabled={[{ before: new Date() }]}
+                        className="!font-sans text-black"
+                        style={{
+                          '--rdp-color': 'black',
+                          '--rdp-background': 'transparent',
+                          '--rdp-accent-color': 'var(--accent)',
+                        } as React.CSSProperties}
+                        modifiersClassNames={{
+                          selected: 'bg-accent text-white hover:bg-accent hover:text-white',
+                          today: 'text-accent font-bold'
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Check Out */}
-              <div className="flex flex-col gap-3 p-4 text-left border-r border-white/5 group">
+              <div className="flex flex-col gap-3 p-4 text-left border-r border-white/5 group relative">
                 <label className="text-[9px] font-black uppercase tracking-[0.4em] text-accent flex items-center gap-2 group-hover:text-white transition-colors">
                   <Calendar className="h-3 w-3" /> Check-Out
                 </label>
-                <div className="relative">
-                  <input 
-                    type="date" 
-                    required
-                    value={search.checkOut}
-                    min={search.checkIn}
-                    onChange={(e) => setSearch(prev => ({ ...prev, checkOut: e.target.value }))}
-                    className="bg-transparent text-base font-bold text-white outline-none w-full cursor-pointer [color-scheme:dark]"
-                  />
+                <div
+                  onClick={() => setOpenDropdown(openDropdown === 'checkOut' ? null : 'checkOut')}
+                  className="bg-transparent text-base font-bold text-white outline-none w-full cursor-pointer flex justify-between items-center group-hover:text-accent transition-colors"
+                >
+                  <span>{search.checkOut ? format(new Date(search.checkOut), 'MMM d, yyyy') : 'Select Date'}</span>
+                  <ChevronDown className="w-4 h-4 opacity-50" />
                 </div>
+                <AnimatePresence>
+                  {openDropdown === 'checkOut' && (
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute bottom-full left-0 mb-4 origin-bottom bg-white border border-black/10 rounded-2xl shadow-2xl p-4 z-50 overflow-hidden"
+                    >
+                      <DayPicker
+                        mode="single"
+                        selected={search.checkOut ? new Date(search.checkOut) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            setSearch(prev => ({ ...prev, checkOut: format(date, 'yyyy-MM-dd') }))
+                            setOpenDropdown(null)
+                          }
+                        }}
+                        disabled={[{ before: search.checkIn ? new Date(search.checkIn) : new Date() }]}
+                        className="!font-sans text-black"
+                        style={{
+                          '--rdp-color': 'black',
+                          '--rdp-background': 'transparent',
+                          '--rdp-accent-color': 'var(--accent)',
+                        } as React.CSSProperties}
+                        modifiersClassNames={{
+                          selected: 'bg-accent text-white hover:bg-accent hover:text-white',
+                          today: 'text-accent font-bold'
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Adults */}
-              <div className="flex flex-col gap-3 p-4 text-left border-r border-white/5 group">
+              <div className="flex flex-col gap-3 p-4 text-left border-r border-white/5 group relative">
                 <label className="text-[9px] font-black uppercase tracking-[0.4em] text-accent flex items-center gap-2 group-hover:text-white transition-colors">
                   <Users className="h-3 w-3" /> Adults
                 </label>
-                <select 
-                  value={search.adults}
-                  onChange={(e) => setSearch(prev => ({ ...prev, adults: e.target.value }))}
-                  className="bg-transparent text-base font-bold text-white outline-none w-full appearance-none cursor-pointer group-hover:text-accent transition-colors"
+                <div
+                  onClick={() => setOpenDropdown(openDropdown === 'adults' ? null : 'adults')}
+                  className="bg-transparent text-base font-bold text-white outline-none w-full cursor-pointer flex justify-between items-center group-hover:text-accent transition-colors"
                 >
-                  {[1,2,3,4].map(n => <option key={n} value={n} className="bg-obsidian text-white">{n} Adult{n > 1 ? 's' : ''}</option>)}
-                </select>
+                  <span>{search.adults} Adult{parseInt(search.adults) > 1 ? 's' : ''}</span>
+                  <ChevronDown className="w-4 h-4 opacity-50" />
+                </div>
+                <AnimatePresence>
+                  {openDropdown === 'adults' && (
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute bottom-full left-0 mb-4 origin-bottom w-full min-w-[140px] bg-white border border-black/10 rounded-2xl shadow-2xl py-2 z-50 overflow-hidden"
+                    >
+                      {[1, 2, 3, 4].map(n => (
+                        <div
+                          key={n}
+                          onClick={() => {
+                            setSearch(prev => ({ ...prev, adults: n.toString() }))
+                            setOpenDropdown(null)
+                          }}
+                          className="px-6 py-3 text-black hover:bg-black/5 cursor-pointer text-base font-bold transition-colors"
+                        >
+                          {n} Adult{n > 1 ? 's' : ''}
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Children */}
-              <div className="flex flex-col gap-3 p-4 text-left group">
+              <div className="flex flex-col gap-3 p-4 text-left group relative">
                 <label className="text-[9px] font-black uppercase tracking-[0.4em] text-accent flex items-center gap-2 group-hover:text-white transition-colors">
                   <Users className="h-3 w-3" /> Children
                 </label>
-                <select 
-                  value={search.children}
-                  onChange={(e) => setSearch(prev => ({ ...prev, children: e.target.value }))}
-                  className="bg-transparent text-base font-bold text-white outline-none w-full appearance-none cursor-pointer group-hover:text-accent transition-colors"
+                <div
+                  onClick={() => setOpenDropdown(openDropdown === 'children' ? null : 'children')}
+                  className="bg-transparent text-base font-bold text-white outline-none w-full cursor-pointer flex justify-between items-center group-hover:text-accent transition-colors"
                 >
-                  {[0,1,2,3].map(n => <option key={n} value={n} className="bg-obsidian text-white">{n} Child{n !== 1 ? 'ren' : ''}</option>)}
-                </select>
+                  <span>{search.children} Child{parseInt(search.children) !== 1 ? 'ren' : ''}</span>
+                  <ChevronDown className="w-4 h-4 opacity-50" />
+                </div>
+                <AnimatePresence>
+                  {openDropdown === 'children' && (
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute bottom-full left-0 mb-4 origin-bottom w-full min-w-[140px] bg-white border border-black/10 rounded-2xl shadow-2xl py-2 z-50 overflow-hidden"
+                    >
+                      {[0, 1, 2, 3].map(n => (
+                        <div
+                          key={n}
+                          onClick={() => {
+                            setSearch(prev => ({ ...prev, children: n.toString() }))
+                            setOpenDropdown(null)
+                          }}
+                          className="px-6 py-3 text-black hover:bg-black/5 cursor-pointer text-base font-bold transition-colors"
+                        >
+                          {n} Child{n !== 1 ? 'ren' : ''}
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
-            <button 
+            <button
               type="submit"
               className="bg-accent hover:bg-white text-white hover:text-accent px-10 py-6 rounded-[2rem] transition-all duration-500 shadow-xl shadow-accent/20 group active:scale-95 flex items-center justify-center gap-4 min-w-[200px]"
             >
