@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { ShieldCheck, CreditCard, Loader2 } from 'lucide-react'
+import { formatINR } from '@/lib/money'
 
 declare global {
   interface Window {
@@ -27,6 +28,7 @@ export function PaymentPanel({
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [scriptLoaded, setScriptLoaded] = useState(false)
+  const [paymentType, setPaymentType] = useState<'full' | 'advance'>('advance')
 
   useEffect(() => {
     const script = document.createElement('script')
@@ -51,7 +53,7 @@ export function PaymentPanel({
       const orderRes = await fetch('/api/razorpay/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId }),
+        body: JSON.stringify({ bookingId, paymentType }),
       })
 
       const orderData = await orderRes.json()
@@ -113,26 +115,86 @@ export function PaymentPanel({
     }
   }
 
+  const advanceAmount = Math.round(amount * 0.30)
+  const remainingAmount = amount - advanceAmount
+
   return (
     <div className="space-y-6">
+      {/* Dynamic Payment Option Tab Selector */}
+      <div className="space-y-3">
+        <label className="text-[10px] uppercase tracking-[0.3em] text-obsidian/40 font-black pl-1 block">
+          Choose Your Reservation Guarantee Preference
+        </label>
+        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-obsidian/[0.03] p-1.5 border border-obsidian/5">
+          <button
+            type="button"
+            onClick={() => setPaymentType('advance')}
+            className={`flex flex-col items-center justify-center rounded-xl py-3 px-4 transition-all duration-300 ${paymentType === 'advance'
+                ? 'bg-white text-obsidian shadow-sm border border-obsidian/5 font-bold'
+                : 'text-obsidian/40 hover:text-obsidian/70'
+              }`}
+          >
+            <span className="text-[10px] font-black uppercase tracking-wider">30% Secure Deposit</span>
+            <span className="text-xs font-serif font-bold mt-1 text-accent animate-in fade-in">
+              {formatINR(advanceAmount)}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPaymentType('full')}
+            className={`flex flex-col items-center justify-center rounded-xl py-3 px-4 transition-all duration-300 ${paymentType === 'full'
+                ? 'bg-white text-obsidian shadow-sm border border-obsidian/5 font-bold'
+                : 'text-obsidian/40 hover:text-obsidian/70'
+              }`}
+          >
+            <span className="text-[10px] font-black uppercase tracking-wider">Sanctuary Guarantee (100%)</span>
+            <span className="text-xs font-serif font-bold mt-1 text-obsidian animate-in fade-in">
+              {formatINR(amount)}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Dynamic breakdown message */}
+      <div className="rounded-2xl border border-obsidian/5 bg-[#FDFCFB] p-5 space-y-3 animate-in fade-in duration-300">
+        <div className="flex justify-between items-center text-xs">
+          <span className="font-bold text-obsidian/50 uppercase tracking-wider text-[10px]">
+            {paymentType === 'advance' ? 'Pay Advance Now' : 'Total Amount Now'}
+          </span>
+          <span className="font-serif font-bold text-lg text-accent">
+            {formatINR(paymentType === 'advance' ? advanceAmount : amount)}
+          </span>
+        </div>
+
+        {paymentType === 'advance' && (
+          <div className="flex justify-between items-center text-xs border-t border-obsidian/5 pt-3 animate-in fade-in">
+            <span className="font-bold text-obsidian/50 uppercase tracking-wider text-[10px]">Balance on Arrival</span>
+            <span className="font-bold text-obsidian">
+              {formatINR(remainingAmount)}
+            </span>
+          </div>
+        )}
+      </div>
+
       <div className="bg-accent/5 rounded-[2rem] border border-accent/10 p-8 space-y-6">
         <div className="flex items-center gap-4">
           <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center text-accent shadow-sm">
             <ShieldCheck className="h-6 w-6" />
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-accent">Secure Gateway</p>
-            <h4 className="font-serif text-xl text-obsidian">Razorpay Integrated</h4>
+            <p className="text-[10px] font-black uppercase tracking-widest text-accent">Protected Gateway</p>
+            <h4 className="font-serif text-xl text-obsidian">Sanctuary Secure Routing</h4>
           </div>
         </div>
 
         <p className="text-xs text-obsidian/40 italic leading-relaxed">
-          Your payment is processed through a secure, encrypted gateway. No financial details are stored on our servers.
+          Your reservation investment is routed through a fully encrypted security environment. Your financial safety and peace of mind are our ultimate guarantee.
         </p>
 
         <div className="flex items-center gap-2 pt-2 border-t border-accent/10">
           <div className="h-1 w-1 rounded-full bg-accent" />
-          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-accent/60">Fully Protected Transaction</p>
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-accent/60">100% Encrypted & Authenticated Transaction</p>
         </div>
       </div>
 
@@ -149,7 +211,7 @@ export function PaymentPanel({
         ) : (
           <>
             <CreditCard className="h-4 w-4 transition-transform group-hover:-translate-y-1" />
-            <span>Complete & Pay Securely</span>
+            <span>Book your stay</span>
           </>
         )}
       </button>

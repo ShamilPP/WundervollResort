@@ -121,9 +121,20 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="mt-6 md:mt-0 flex items-center justify-between md:justify-end gap-10">
-                      <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-obsidian/20">Total Investment</p>
-                        <p className="font-serif text-2xl text-obsidian">{formatINR(b.totalAmount)}</p>
+                      <div className="text-right space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-obsidian/20">Total: {formatINR(b.totalAmount)}</p>
+                        {b.payment ? (
+                          b.payment.amount < b.totalAmount ? (
+                            <div className="text-[11px] leading-tight mt-1 font-bold">
+                              <p className="text-[#10B981]">Paid: {formatINR(b.payment.amount)}</p>
+                              <p className="text-accent">Balance: {formatINR(b.totalAmount - b.payment.amount)}</p>
+                            </div>
+                          ) : (
+                            <p className="text-[11px] text-[#10B981] font-bold mt-1">Fully Paid</p>
+                          )
+                        ) : (
+                          <p className="text-[11px] text-obsidian/40 font-bold italic mt-1">Payment Pending</p>
+                        )}
                       </div>
                       <div className="h-12 w-12 rounded-full border border-obsidian/5 flex items-center justify-center group-hover:bg-obsidian group-hover:text-white transition-all">
                         <ChevronRight className="h-5 w-5" />

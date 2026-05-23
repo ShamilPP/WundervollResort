@@ -115,6 +115,12 @@ export default async function BookingDetailPage({
                 <div className="space-y-4 pt-6 border-t border-white/10">
                   <Row label="Stay Subtotal" value={formatINR(booking.subtotal)} />
                   <Row label="Taxes & Fees" value={formatINR(booking.taxes)} />
+                  {booking.payment && booking.payment.amount < booking.totalAmount && (
+                    <>
+                      <Row label="Advance Paid" value={formatINR(booking.payment.amount)} />
+                      <Row label="Balance at Check-in" value={formatINR(booking.totalAmount - booking.payment.amount)} />
+                    </>
+                  )}
                   <div className="flex justify-between items-center pt-6 mt-4 border-t border-white/10">
                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Total Amount</span>
                     <span className="text-3xl font-serif text-accent">{formatINR(booking.totalAmount)}</span>
@@ -124,7 +130,11 @@ export default async function BookingDetailPage({
                 <div className="pt-6 border-t border-white/10 flex items-center gap-3">
                   <CreditCard className="h-4 w-4 text-accent" />
                   <p className="text-[10px] font-bold uppercase tracking-widest text-accent">
-                    {booking.payment ? `Paid via ${booking.payment.method}` : 'Payment Pending'}
+                    {booking.payment 
+                      ? booking.payment.amount < booking.totalAmount 
+                        ? `30% Advance Secured` 
+                        : `Fully Paid via ${booking.payment.method}` 
+                      : 'Payment Pending'}
                   </p>
                 </div>
               </div>

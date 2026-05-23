@@ -5,6 +5,8 @@ import { DayPicker, type DateRange } from 'react-day-picker'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Minus, Plus } from 'lucide-react'
 import 'react-day-picker/style.css'
+import { useSession } from 'next-auth/react'
+import { toast } from 'sonner'
 
 import { formatINR } from '@/lib/money'
 import { useBookingDraft } from '@/store/booking-draft'
@@ -62,6 +64,19 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
 
   const [specialRequests, setSpecialRequests] = useState(draftNote || '')
 
+  const { data: session } = useSession()
+  const [guestName, setGuestName] = useState('')
+  const [guestEmail, setGuestEmail] = useState('')
+  const [guestPhone, setGuestPhone] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (session?.user) {
+      if (session.user.name) setGuestName(session.user.name)
+      if (session.user.email) setGuestEmail(session.user.email)
+    }
+  }, [session])
+
   useEffect(() => {
     fetch(`/api/rooms/${roomId}/availability`)
       .then((r) => r.json())
@@ -105,18 +120,57 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
       .finally(() => setLoading(false))
   }, [range, roomId, adults, children])
 
-  function proceed() {
-    if (!range?.from || !range?.to) return
-    setRoom(roomId)
-    setDates(range.from.toISOString(), range.to.toISOString())
-    setGuestsSplit(adults, children)
-    setStoreSpecialRequests(specialRequests)
-    
-    router.push(`/booking/${roomId}`)
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!range?.from || !range?.to) {
+      toast.error('Please pick check-in and check-out dates.')
+      return
+    }
+    if (!guestName || !guestEmail || !guestPhone) {
+      toast.error('Please complete all guest details.')
+      return
+    }
+    if (!quote?.available) {
+      toast.error('These dates are no longer available.')
+      return
+    }
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId,
+          checkIn: range.from.toISOString(),
+          checkOut: range.to.toISOString(),
+          adults,
+          children,
+          guestCount: adults + children,
+          guestName,
+          guestEmail,
+          guestPhone,
+          specialRequests: specialRequests || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed to create booking')
+      
+      // Clear drafts
+      setRoom('')
+      setDates('', '')
+      setStoreSpecialRequests('')
+      
+      toast.success('Reservation created successfully!')
+      router.push(`/booking/confirmation/${data.id}`)
+    } catch (err) {
+      toast.error((err as Error).message)
+    } finally {
+      setSubmitting(true)
+    }
   }
 
   return (
-    <div className="space-y-6">
+    <form onSubmit={submit} className="space-y-6">
       <div className="flex items-center justify-center p-4 bg-[#FDFCFB] rounded-3xl border border-brand-obsidian/5">
         <DayPicker
           mode="range"
@@ -138,6 +192,7 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
           </div>
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setAdults(Math.max(1, adults - 1))}
               className="w-8 h-8 rounded-full border border-brand-obsidian/10 flex items-center justify-center hover:bg-brand-obsidian/5"
             >
@@ -145,6 +200,7 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
             </button>
             <span className="text-sm font-bold w-4 text-center">{adults}</span>
             <button
+              type="button"
               onClick={() => {
                 if (!maxGuests || adults + children < maxGuests) {
                   setAdults(adults + 1)
@@ -166,6 +222,7 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
           </div>
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setChildren(Math.max(0, children - 1))}
               className="w-8 h-8 rounded-full border border-brand-obsidian/10 flex items-center justify-center hover:bg-brand-obsidian/5"
             >
@@ -173,6 +230,7 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
             </button>
             <span className="text-sm font-bold w-4 text-center">{children}</span>
             <button
+              type="button"
               onClick={() => {
                 if (!maxGuests || adults + children < maxGuests) {
                   setChildren(children + 1)
@@ -218,7 +276,58 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
           <p className="text-center text-brand-obsidian/40 italic">Calculating investment…</p>
         ) : quote?.available ? (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-            <div className="space-y-3">
+            {/* Direct Guest Information fields inside sanctuary sidebar */}
+            <div className="space-y-4 pt-4 border-t border-brand-obsidian/5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">
+                  Guest Information
+                </span>
+                <div className="h-px flex-1 bg-accent/10" />
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase tracking-widest text-brand-obsidian/40 font-bold block pl-1">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    required
+                    placeholder="Your Full Name"
+                    className="w-full rounded-xl border border-brand-obsidian/10 bg-[#FDFCFB] px-4 py-3.5 text-sm font-bold text-brand-obsidian placeholder:text-brand-obsidian/20 focus:outline-none focus:border-accent transition-all shadow-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase tracking-widest text-brand-obsidian/40 font-bold block pl-1">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    required
+                    placeholder="you@example.com"
+                    className="w-full rounded-xl border border-brand-obsidian/10 bg-[#FDFCFB] px-4 py-3.5 text-sm font-bold text-brand-obsidian placeholder:text-brand-obsidian/20 focus:outline-none focus:border-accent transition-all shadow-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase tracking-widest text-brand-obsidian/40 font-bold block pl-1">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    value={guestPhone}
+                    onChange={(e) => setGuestPhone(e.target.value)}
+                    required
+                    placeholder="+91 00000 00000"
+                    className="w-full rounded-xl border border-brand-obsidian/10 bg-[#FDFCFB] px-4 py-3.5 text-sm font-bold text-brand-obsidian placeholder:text-brand-obsidian/20 focus:outline-none focus:border-accent transition-all shadow-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-4 border-t border-brand-obsidian/5">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-black uppercase tracking-widest text-brand-obsidian/40">{quote.nights} night{quote.nights === 1 ? '' : 's'} stay</span>
                 <span className="font-bold text-brand-obsidian">{formatINR(quote.subtotal!)}</span>
@@ -235,10 +344,11 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
             </div>
 
             <button
-              onClick={proceed}
-              className="w-full rounded-2xl bg-brand-obsidian py-5 text-[11px] font-black uppercase tracking-[0.3em] text-white hover:bg-accent transition-all duration-500 shadow-xl shadow-brand-obsidian/10 active:scale-95"
+              type="submit"
+              disabled={submitting}
+              className="w-full rounded-2xl bg-brand-obsidian py-5 text-[11px] font-black uppercase tracking-[0.3em] text-white hover:bg-accent transition-all duration-500 shadow-xl shadow-brand-obsidian/10 active:scale-95 disabled:opacity-50"
             >
-              Confirm Reservation
+              {submitting ? 'Creating Sanctuary Draft...' : 'Confirm Reservation'}
             </button>
           </div>
         ) : (
@@ -260,6 +370,6 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
           From {formatINR(basePrice)} / Night
         </p>
       </div>
-    </div>
+    </form>
   )
 }

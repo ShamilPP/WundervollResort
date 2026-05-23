@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { bookingId } = await req.json()
+    const { bookingId, paymentType } = await req.json()
     if (!bookingId) {
       return NextResponse.json({ error: 'Booking ID is required' }, { status: 400 })
     }
@@ -30,9 +30,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    // Calculate secure amount (full vs 30% advance deposit)
+    let finalAmount = booking.totalAmount
+    if (paymentType === 'advance') {
+      finalAmount = Math.round(booking.totalAmount * 0.30)
+    }
+
     // Razorpay works in Paisa (1 INR = 100 Paisa)
     const options = {
-      amount: booking.totalAmount,
+      amount: finalAmount,
       currency: 'INR',
       receipt: `receipt_${bookingId}`,
     }

@@ -179,7 +179,6 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
                 type="email"
                 value={guestEmail}
                 onChange={(e) => setGuestEmail(e.target.value)}
-                required
                 placeholder="you@example.com"
                 className={inputCls}
               />
@@ -190,6 +189,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
                 onChange={(e) => setGuestPhone(e.target.value)}
                 placeholder="+91 00000 00000"
                 className={inputCls}
+                required
               />
             </Field>
           </div>

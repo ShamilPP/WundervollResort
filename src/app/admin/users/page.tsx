@@ -19,6 +19,7 @@ export default async function AdminUsersPage() {
             <tr>
               <Th>Name</Th>
               <Th>Email</Th>
+              <Th>Phone</Th>
               <Th>Role</Th>
               <Th>Bookings</Th>
               <Th>Joined</Th>
@@ -29,6 +30,7 @@ export default async function AdminUsersPage() {
               <tr key={u.id} className="border-t">
                 <Td>{u.name ?? '—'}</Td>
                 <Td>{u.email}</Td>
+                <Td className="font-mono text-xs">{u.phone ?? '—'}</Td>
                 <Td>
                   <span className={`rounded-full px-2.5 py-0.5 text-xs ${u.role === 'ADMIN' ? 'bg-accent text-accent-foreground' : 'bg-muted'}`}>
                     {u.role}
@@ -48,6 +50,6 @@ export default async function AdminUsersPage() {
 const Th = ({ children }: { children: React.ReactNode }) => (
   <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">{children}</th>
 )
-const Td = ({ children }: { children: React.ReactNode }) => (
-  <td className="px-4 py-3">{children}</td>
+const Td = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <td className={`px-4 py-3 ${className ?? ''}`}>{children}</td>
 )

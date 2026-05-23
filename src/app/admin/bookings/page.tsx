@@ -21,6 +21,7 @@ export default async function AdminBookingsPage({
       { code: { contains: searchParams.q, mode: 'insensitive' } },
       { guestEmail: { contains: searchParams.q, mode: 'insensitive' } },
       { guestName: { contains: searchParams.q, mode: 'insensitive' } },
+      { guestPhone: { contains: searchParams.q, mode: 'insensitive' } },
     ]
   }
 
@@ -28,7 +29,7 @@ export default async function AdminBookingsPage({
     .findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: { room: { select: { name: true } } },
+      include: { room: { select: { name: true } }, payment: true },
       take: 200,
     })
     .catch(() => [])
@@ -94,14 +95,33 @@ export default async function AdminBookingsPage({
                 <Td>{b.code}</Td>
                 <Td>{b.room.name}</Td>
                 <Td>
-                  <p>{b.guestName}</p>
+                  <p className="font-medium text-foreground">{b.guestName}</p>
                   <p className="text-xs text-muted-foreground">{b.guestEmail}</p>
+                  {b.guestPhone && (
+                    <p className="text-xs text-brand-emerald/80 dark:text-brand-emerald font-medium mt-0.5">{b.guestPhone}</p>
+                  )}
                 </Td>
                 <Td>
                   {new Date(b.checkIn).toLocaleDateString()} →{' '}
                   {new Date(b.checkOut).toLocaleDateString()}
                 </Td>
-                <Td>{formatINR(b.totalAmount)}</Td>
+                <Td>
+                  <div>
+                    <p className="font-semibold text-foreground">{formatINR(b.totalAmount)}</p>
+                    {b.payment ? (
+                      b.payment.amount < b.totalAmount ? (
+                        <div className="text-[10px] leading-tight mt-0.5 font-bold">
+                          <p className="text-emerald-600 dark:text-emerald-400">Paid: {formatINR(b.payment.amount)}</p>
+                          <p className="text-accent">Bal: {formatINR(b.totalAmount - b.payment.amount)}</p>
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">Fully Paid</p>
+                      )
+                    ) : (
+                      <p className="text-[10px] text-muted-foreground italic mt-0.5">Unpaid</p>
+                    )}
+                  </div>
+                </Td>
                 <Td>{b.status.replace('_', ' ')}</Td>
                 <Td>
                   <Link

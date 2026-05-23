@@ -1,14 +1,64 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react'
+
 import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
-import { Mail, Phone, MapPin, Send } from 'lucide-react'
-import * as motion from 'framer-motion/m'
-
-export const metadata: Metadata = {
-  title: 'Contact · Wundervoll Resort',
-}
 
 export default function ContactPage() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [subject, setSubject] = useState('General Inquiry')
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!name.trim()) {
+      toast.error('Please enter your full name.')
+      return
+    }
+    if (!email.trim()) {
+      toast.error('Please enter your email address.')
+      return
+    }
+    if (!message.trim()) {
+      toast.error('Please enter your message.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      // Build premium human-formatted message text
+      const msgText = `*Wundervoll Resort — New Inquiry*\n\n` +
+        `👤 *Name:* ${name}\n` +
+        `📧 *Email:* ${email}\n` +
+        `🏷️ *Subject:* ${subject}\n\n` +
+        `💬 *Message:* \n"${message}"`
+
+      const encoded = encodeURIComponent(msgText)
+      const whatsappUrl = `https://wa.me/919539079358?text=${encoded}`
+
+      toast.success('Redirecting to WhatsApp to send your inquiry...')
+
+      // Redirect guest directly to WhatsApp
+      window.open(whatsappUrl, '_blank')
+
+      // Clear the form fields
+      setName('')
+      setEmail('')
+      setSubject('General Inquiry')
+      setMessage('')
+    } catch (err) {
+      toast.error('Could not redirect to WhatsApp. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="bg-[#FDFCFB] min-h-screen flex flex-col">
       <Navbar />
@@ -66,24 +116,40 @@ export default function ContactPage() {
                 <p className="font-serif text-2xl leading-relaxed text-accent">
                   {"\"Every inquiry is treated with the same care and attention as a guest at our resort.\""}
                 </p>
-                <p className="text-xs font-light text-white/40 italic">Response time: Usually within 2 hours</p>
+                <p className="text-xs font-light text-white/40 italic">Response time: Instant via WhatsApp</p>
               </div>
             </div>
 
             {/* Inquiry Form */}
             <div className="lg:col-span-7">
-              <form className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-obsidian/5 p-6 sm:p-12 shadow-sm space-y-8">
+              <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-obsidian/5 p-6 sm:p-12 shadow-sm space-y-8">
                 <div className="grid gap-8 sm:grid-cols-2">
                   <Field label="Full Name">
-                    <input className={ic} placeholder="Your name" />
+                    <input 
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className={ic} 
+                      placeholder="Your name" 
+                    />
                   </Field>
                   <Field label="Email Address">
-                    <input type="email" className={ic} placeholder="you@example.com" />
+                    <input 
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={ic} 
+                      placeholder="you@example.com" 
+                    />
                   </Field>
                 </div>
 
                 <Field label="Subject">
-                  <select className={ic}>
+                  <select 
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    className={ic}
+                  >
                     <option>General Inquiry</option>
                     <option>Room Reservation</option>
                     <option>Private Event</option>
@@ -92,12 +158,31 @@ export default function ContactPage() {
                 </Field>
 
                 <Field label="Message">
-                  <textarea rows={6} className={`${ic} resize-none`} placeholder="How can we assist you?" />
+                  <textarea 
+                    rows={6} 
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className={`${ic} resize-none`} 
+                    placeholder="How can we assist you?" 
+                  />
                 </Field>
 
-                <button type="button" className="group flex items-center justify-center gap-3 w-full rounded-2xl bg-accent py-6 text-[11px] font-black uppercase tracking-[0.3em] text-white transition-all duration-500 hover:bg-accent active:scale-95 shadow-xl">
-                  <Send className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                  Send Inquiry
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="group flex items-center justify-center gap-3 w-full rounded-2xl bg-accent py-6 text-[11px] font-black uppercase tracking-[0.3em] text-white transition-all duration-500 hover:bg-accent active:scale-95 shadow-xl disabled:opacity-55"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Preparing Chat…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                      <span>Send via WhatsApp</span>
+                    </>
+                  )}
                 </button>
 
                 <p className="text-center text-[10px] font-bold uppercase tracking-widest text-obsidian/20">

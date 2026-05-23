@@ -65,8 +65,14 @@ export default async function AdminBookingDetail({
           <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
             <Info label="Status" value={booking.payment.status} />
             <Info label="Method" value={booking.payment.method} />
-            <Info label="Amount" value={formatINR(booking.payment.amount)} />
-            <Info label="Stripe PI" value={booking.payment.stripePaymentIntentId ?? '—'} />
+            <Info label="Amount Paid" value={formatINR(booking.payment.amount)} />
+            {booking.payment.amount < booking.totalAmount ? (
+              <Info label="Remaining Balance" value={formatINR(booking.totalAmount - booking.payment.amount)} />
+            ) : (
+              <Info label="Payment Cover" value="100% Fully Settled" />
+            )}
+            <Info label="Razorpay Order" value={booking.payment.razorpayOrderId ?? '—'} />
+            <Info label="Razorpay Payment" value={booking.payment.razorpayPaymentId ?? '—'} />
           </dl>
         </div>
       )}

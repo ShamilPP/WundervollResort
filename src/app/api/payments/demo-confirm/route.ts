@@ -62,6 +62,8 @@ export async function POST(req: Request) {
     checkIn: booking.checkIn,
     checkOut: booking.checkOut,
     total: booking.totalAmount,
+    paidAmount: booking.totalAmount,
+    nights: booking.nights,
   })
 
   return NextResponse.json({ ok: true })

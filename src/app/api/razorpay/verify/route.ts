@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
+import { getRazorpay } from '@/lib/razorpay'
+import { sendBookingConfirmation } from '@/lib/email'
 
 export async function POST(req: Request) {
   try {
@@ -34,7 +36,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
     }
 
-    // Fetch booking to get amount
+    // Fetch booking to verify existence
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
     })
@@ -42,6 +44,10 @@ export async function POST(req: Request) {
     if (!booking) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
     }
+
+    // Fetch secure order paid amount from Razorpay
+    const order = await getRazorpay().orders.fetch(razorpay_order_id)
+    const paidAmount = typeof order.amount === 'string' ? parseInt(order.amount, 10) : Number(order.amount)
 
     // Update booking and create payment record in a transaction
     await prisma.$transaction([
@@ -53,7 +59,7 @@ export async function POST(req: Request) {
         where: { bookingId },
         create: {
           bookingId,
-          amount: booking.totalAmount,
+          amount: paidAmount,
           status: 'SUCCEEDED',
           method: 'RAZORPAY',
           razorpayOrderId: razorpay_order_id,
@@ -61,7 +67,7 @@ export async function POST(req: Request) {
           razorpaySignature: razorpay_signature,
         },
         update: {
-          amount: booking.totalAmount,
+          amount: paidAmount,
           status: 'SUCCEEDED',
           method: 'RAZORPAY',
           razorpayOrderId: razorpay_order_id,
@@ -70,6 +76,26 @@ export async function POST(req: Request) {
         },
       }),
     ])
+
+    // Query room detail & guest information to compile pristine bill receipt
+    const detailedBooking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { room: true },
+    })
+
+    if (detailedBooking) {
+      await sendBookingConfirmation({
+        to: detailedBooking.guestEmail,
+        guestName: detailedBooking.guestName,
+        bookingCode: detailedBooking.code,
+        roomName: detailedBooking.room.name,
+        checkIn: detailedBooking.checkIn,
+        checkOut: detailedBooking.checkOut,
+        total: detailedBooking.totalAmount,
+        paidAmount: paidAmount,
+        nights: detailedBooking.nights,
+      }).catch((e) => console.error('[EMAIL_DISPATCH_FAILED]', e))
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {
