@@ -105,14 +105,14 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-[2.5rem] border border-obsidian/5 p-6 md:p-10 shadow-sm space-y-8"
+          className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-obsidian/5 p-4 sm:p-6 md:p-10 shadow-sm space-y-8"
         >
           <div className="flex items-center gap-4">
             <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center text-[10px] font-bold text-accent">01</div>
             <h2 className="font-serif text-3xl text-obsidian tracking-tight">Stay Details</h2>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-4">
+          <div className="grid gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
             <Field label="Check-in">
               <input
                 type="date"
@@ -157,7 +157,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-[2.5rem] border border-obsidian/5 p-6 md:p-10 shadow-sm space-y-8"
+          className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-obsidian/5 p-4 sm:p-6 md:p-10 shadow-sm space-y-8"
         >
           <div className="flex items-center gap-4">
             <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center text-[10px] font-bold text-accent">02</div>
@@ -212,7 +212,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-obsidian text-accent rounded-[2.5rem] p-6 md:p-10 shadow-2xl space-y-8 border border-white/5"
+          className="bg-obsidian text-accent rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-2xl space-y-8 border border-white/5"
         >
           <div className="space-y-2">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Booking Summary</p>

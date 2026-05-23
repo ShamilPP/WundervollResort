@@ -128,11 +128,57 @@ export function Navbar({ transparentAtTop = false }: { transparentAtTop?: boolea
                   {l.label}
                 </Link>
               ))}
-              <div className="pt-6 border-t border-obsidian/5">
+              <div className="pt-6 border-t border-obsidian/5 flex flex-col gap-4">
+                {status === 'loading' ? (
+                  <div className="h-4 w-24 rounded bg-obsidian/5 animate-pulse" />
+                ) : session?.user ? (
+                  <>
+                    <div className="px-2 pb-2">
+                      <p className="text-sm font-bold text-accent truncate">Welcome back, {session.user.name}</p>
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-obsidian/30 mt-0.5">
+                        {session.user.role === 'ADMIN' ? 'Administrator' : 'Guest'}
+                      </p>
+                    </div>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block w-full rounded-2xl border border-obsidian/10 py-4 text-center text-xs font-black uppercase tracking-[0.2em] text-obsidian hover:bg-obsidian/5"
+                    >
+                      My Bookings
+                    </Link>
+                    {session.user.role === 'ADMIN' && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block w-full rounded-2xl border border-obsidian/10 py-4 text-center text-xs font-black uppercase tracking-[0.2em] text-obsidian hover:bg-obsidian/5"
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        signOut({ callbackUrl: '/' })
+                      }}
+                      className="block w-full rounded-2xl bg-red-50 hover:bg-red-100 py-4 text-center text-xs font-black uppercase tracking-[0.2em] text-red-600 transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full rounded-2xl border border-obsidian/10 py-4 text-center text-xs font-black uppercase tracking-[0.2em] text-obsidian hover:bg-obsidian/5"
+                  >
+                    Sign In
+                  </Link>
+                )}
+
                 <Link
                   href="/rooms"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full rounded-full bg-accent py-4 text-center text-[10px] font-black uppercase tracking-[0.3em] text-white"
+                  className="block w-full rounded-full bg-accent py-4 text-center text-[10px] font-black uppercase tracking-[0.3em] text-white hover:bg-slate-900 transition-colors"
                 >
                   Book Now
                 </Link>

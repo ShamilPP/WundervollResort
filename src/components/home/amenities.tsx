@@ -38,12 +38,12 @@ const amenityList = [
 
 export function Amenities() {
   return (
-    <section className="bg-[#FDFCFB] py-40 border-t border-obsidian/5 optimize-render">
+    <section className="bg-[#FDFCFB] py-20 lg:py-40 border-t border-obsidian/5 optimize-render">
       <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
           
           {/* Enhanced Header Column (The Main Highlight) */}
-          <div className="lg:col-span-5 space-y-12 lg:sticky lg:top-40">
+          <div className="lg:col-span-5 space-y-8 lg:space-y-12 lg:sticky lg:top-32">
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="h-px w-12 bg-accent" />
@@ -57,11 +57,11 @@ export function Amenities() {
               </h2>
             </div>
             
-            <div className="space-y-8 border-l-2 border-accent/20 pl-10">
-              <p className="text-xl font-light leading-relaxed text-obsidian/70 italic">
+            <div className="space-y-6 md:space-y-8 border-l-2 border-accent/20 pl-6 md:pl-10">
+              <p className="text-lg md:text-xl font-light leading-relaxed text-obsidian/70 italic">
                 {"\"We focus on all the small details to make your stay as comfortable and relaxing as possible.\""}
               </p>
-              <div className="pt-4">
+              <div className="pt-2 md:pt-4">
                  <div className="h-0.5 w-24 bg-obsidian/10" />
               </div>
             </div>

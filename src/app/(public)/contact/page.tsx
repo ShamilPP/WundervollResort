@@ -61,7 +61,7 @@ export default function ContactPage() {
                 />
               </div>
 
-              <div className="bg-obsidian text-white rounded-[2.5rem] p-10 shadow-2xl space-y-6 border border-white/5">
+              <div className="bg-obsidian text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-2xl space-y-6 border border-white/5">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Our Promise</p>
                 <p className="font-serif text-2xl leading-relaxed text-accent">
                   {"\"Every inquiry is treated with the same care and attention as a guest at our resort.\""}
@@ -72,7 +72,7 @@ export default function ContactPage() {
 
             {/* Inquiry Form */}
             <div className="lg:col-span-7">
-              <form className="bg-white rounded-[2.5rem] border border-obsidian/5 p-12 shadow-sm space-y-8">
+              <form className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-obsidian/5 p-6 sm:p-12 shadow-sm space-y-8">
                 <div className="grid gap-8 sm:grid-cols-2">
                   <Field label="Full Name">
                     <input className={ic} placeholder="Your name" />

@@ -23,12 +23,12 @@ const quotes = [
 
 export function Testimonials() {
   return (
-    <section className="bg-white py-40">
+    <section className="bg-white py-20 lg:py-40">
       <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
           
           {/* Priority Header */}
-          <div className="lg:col-span-5 space-y-10 lg:sticky lg:top-40">
+          <div className="lg:col-span-5 space-y-8 lg:space-y-10 lg:sticky lg:top-32">
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="h-px w-12 bg-accent" />
@@ -36,18 +36,18 @@ export function Testimonials() {
                   Guest Reviews
                 </span>
               </div>
-              <h2 className="font-serif text-6xl md:text-[5.5rem] text-obsidian tracking-tighter leading-[0.95]">
+              <h2 className="font-serif text-4xl sm:text-6xl lg:text-[5.5rem] text-obsidian tracking-tighter leading-[0.95]">
                 What Our <br /> 
                 <span className="text-accent italic font-light">Guests Say</span>
               </h2>
             </div>
-            <p className="text-xl font-light leading-relaxed text-obsidian/40 italic max-w-md">
+            <p className="text-lg md:text-xl font-light leading-relaxed text-obsidian/40 italic max-w-md">
               {"\"We are happy to share some of the feedback we have received from our guests who have stayed with us.\""}
             </p>
           </div>
 
           {/* Stories Feed (Premium Standard) */}
-          <div className="lg:col-span-7 space-y-24">
+          <div className="lg:col-span-7 space-y-12 md:space-y-24">
             {quotes.map((q, idx) => (
               <motion.div
                 key={q.name}
@@ -55,20 +55,20 @@ export function Testimonials() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.2, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="space-y-10 border-b border-obsidian/5 pb-20 last:border-0 last:pb-0"
+                className="space-y-6 md:space-y-10 border-b border-obsidian/5 pb-10 md:pb-20 last:border-0 last:pb-0"
               >
-                <blockquote className="font-serif text-4xl md:text-5xl text-obsidian leading-[1.2] italic group transition-all duration-700">
-                  <span className="text-accent text-6xl mr-2">{"\""}</span>
+                <blockquote className="font-serif text-xl sm:text-4xl md:text-5xl text-obsidian leading-[1.3] sm:leading-[1.2] italic group transition-all duration-700">
+                  <span className="text-accent text-4xl sm:text-6xl mr-2">{"\""}</span>
                   {q.text}
-                  <span className="text-accent text-6xl ml-2">{"\""}</span>
+                  <span className="text-accent text-4xl sm:text-6xl ml-2">{"\""}</span>
                 </blockquote>
                 
-                <div className="flex items-center justify-between">
-                   <div className="space-y-2">
-                      <p className="text-sm font-bold text-obsidian uppercase tracking-widest">{q.name}</p>
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-obsidian/30">{q.stay}</p>
+                <div className="flex items-center justify-between pt-2">
+                   <div className="space-y-1">
+                      <p className="text-xs sm:text-sm font-bold text-obsidian uppercase tracking-widest">{q.name}</p>
+                      <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-obsidian/30">{q.stay}</p>
                    </div>
-                   <div className="h-12 w-12 rounded-full border border-obsidian/5 flex items-center justify-center">
+                   <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-obsidian/5 flex items-center justify-center">
                       <div className="h-1.5 w-1.5 rounded-full bg-accent" />
                    </div>
                 </div>

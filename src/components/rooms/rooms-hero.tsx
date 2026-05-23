@@ -5,19 +5,19 @@ import { RoomFilters } from './room-filters'
 
 export function RoomsHero() {
   return (
-    <section className="relative min-h-screen lg:h-screen lg:min-h-[700px] w-full overflow-hidden bg-obsidian flex flex-col justify-between py-12 lg:py-0">
+    <section className="relative min-h-screen lg:h-screen lg:min-h-[700px] w-full overflow-visible bg-obsidian flex flex-col justify-between py-12 lg:py-0">
       {/* Immersive Background Image */}
       <motion.div
         initial={{ scale: 1.1 }}
         animate={{ scale: 1 }}
         transition={{ duration: 2, ease: 'easeOut' }}
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 overflow-hidden"
       >
         <div
           className="h-full w-full bg-cover bg-center opacity-70"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=2000&q=80')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/40 via-transparent to-obsidian" />
+        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/75 via-obsidian/45 to-obsidian" />
       </motion.div>
 
       {/* Centered High-Impact Content */}
@@ -31,10 +31,10 @@ export function RoomsHero() {
           <span className="text-[10px] font-black uppercase tracking-[0.8em] text-accent mb-4 lg:mb-6 block">
             Limited Collection
           </span>
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-9xl text-white tracking-tight leading-none mb-4 lg:mb-8">
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-9xl text-[#E5C693] tracking-tight leading-none mb-4 lg:mb-8">
             The Residences
           </h1>
-          <p className="max-w-2xl mx-auto text-sm sm:text-lg lg:text-xl text-white/70 font-light italic leading-relaxed">
+          <p className="max-w-2xl mx-auto text-sm sm:text-lg lg:text-xl text-[#dfcfb7] font-light italic leading-relaxed">
             {"\"Nine private sanctuaries where the architecture serves only to frame the rhythm of the ocean.\""}
           </p>
         </motion.div>

@@ -81,7 +81,7 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-[3rem] border border-obsidian/5 p-10 shadow-sm space-y-8">
+        <div className="bg-white rounded-[2.5rem] sm:rounded-[3rem] border border-obsidian/5 p-6 sm:p-10 shadow-sm space-y-8">
           {error && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}

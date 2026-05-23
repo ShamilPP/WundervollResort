@@ -67,7 +67,7 @@ export default async function ConfirmationPage({
           <div className="grid gap-12 lg:grid-cols-12 items-start">
             {/* Booking Details Card */}
             <div className="lg:col-span-6 space-y-10">
-              <div className="bg-white rounded-[2.5rem] border border-obsidian/5 p-6 md:p-10 shadow-sm space-y-10">
+              <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-obsidian/5 p-4 sm:p-6 md:p-10 shadow-sm space-y-10">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="text-[10px] font-black uppercase tracking-widest text-obsidian/20">Booking Code</p>
@@ -118,7 +118,7 @@ export default async function ConfirmationPage({
             {/* Payment / Status Side Column */}
             <div className="lg:col-span-6">
               {!isConfirmed ? (
-                <div className="bg-white rounded-[2.5rem] border border-obsidian/5 p-6 md:p-10 shadow-xl space-y-8">
+                <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-obsidian/5 p-4 sm:p-6 md:p-10 shadow-xl space-y-8">
                   <div className="flex items-center gap-3">
                     <CreditCard className="h-5 w-5 text-accent" />
                     <h3 className="text-sm font-black uppercase tracking-widest text-obsidian">Payment Gateway</h3>
@@ -135,7 +135,7 @@ export default async function ConfirmationPage({
                   </p>
                 </div>
               ) : (
-                <div className="bg-obsidian text-white rounded-[2.5rem] p-10 shadow-2xl space-y-8 text-center border border-white/5">
+                <div className="bg-obsidian text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-2xl space-y-8 text-center border border-white/5">
                   <MapPin className="h-10 w-10 text-accent mx-auto" />
                   <div className="space-y-4 text-accent">
                     <h3 className="font-serif text-3xl">Find Us</h3>

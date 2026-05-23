@@ -40,7 +40,7 @@ export default async function BookingSuccessPage({
         <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-accent/5 rounded-full blur-3xl animate-pulse" />
 
         <div className="container max-w-2xl relative z-10">
-          <div className="bg-white rounded-[3rem] border border-obsidian/5 p-8 md:p-16 shadow-2xl shadow-obsidian/5 text-center space-y-10">
+          <div className="bg-white rounded-[2.5rem] sm:rounded-[3rem] border border-obsidian/5 p-6 sm:p-10 md:p-16 shadow-2xl shadow-obsidian/5 text-center space-y-10">
 
             <div className="flex justify-center">
               <div className="relative">
