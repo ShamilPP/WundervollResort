@@ -40,3 +40,22 @@ export async function PATCH(
 
   return NextResponse.json({ ok: true })
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } },
+) {
+  const guard = await requireAdmin()
+  if ('error' in guard) return guard.error
+
+  await prisma.$transaction([
+    prisma.payment.deleteMany({
+      where: { bookingId: params.id },
+    }),
+    prisma.booking.delete({
+      where: { id: params.id },
+    }),
+  ])
+
+  return NextResponse.json({ ok: true })
+}
