@@ -44,9 +44,9 @@ export function RoomFilters() {
   return (
     <div className="flex flex-col gap-10">
       {/* 1. Date & Capacity Search Bar (Primary) */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 bg-slate-50/60 p-6 md:p-8 rounded-[2rem] border border-slate-100/80">
         <div className="flex flex-col gap-3">
-          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-accent/80 font-black flex items-center gap-2">
             <Calendar className="h-3 w-3" /> Check-in
           </label>
           <input
@@ -54,12 +54,12 @@ export function RoomFilters() {
             value={current.checkIn}
             min={new Date().toISOString().split('T')[0]}
             onChange={(e) => update({ checkIn: e.target.value })}
-            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors [color-scheme:dark]"
+            className="bg-transparent text-slate-800 border-b border-slate-200/80 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors [color-scheme:light]"
           />
         </div>
 
         <div className="flex flex-col gap-3">
-          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-accent/80 font-black flex items-center gap-2">
             <Calendar className="h-3 w-3" /> Check-out
           </label>
           <input
@@ -67,52 +67,52 @@ export function RoomFilters() {
             value={current.checkOut}
             min={current.checkIn || new Date().toISOString().split('T')[0]}
             onChange={(e) => update({ checkOut: e.target.value })}
-            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors [color-scheme:dark]"
+            className="bg-transparent text-slate-800 border-b border-slate-200/80 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors [color-scheme:light]"
           />
         </div>
 
         <div className="flex flex-col gap-3">
-          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-accent/80 font-black flex items-center gap-2">
             <Users className="h-3 w-3" /> Adults
           </label>
           <select
             value={current.adults}
             onChange={(e) => update({ adults: e.target.value })}
-            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
+            className="bg-transparent text-slate-800 border-b border-slate-200/80 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
           >
             {[1, 2, 3, 4].map(n => (
-              <option key={n} value={n.toString()} className="bg-obsidian text-white">{n} Adult{n > 1 ? 's' : ''}</option>
+              <option key={n} value={n.toString()} className="bg-white text-slate-800">{n} Adult{n > 1 ? 's' : ''}</option>
             ))}
           </select>
         </div>
 
         <div className="flex flex-col gap-3">
-          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-accent/80 font-black flex items-center gap-2">
             <Users className="h-3 w-3" /> Children
           </label>
           <select
             value={current.children}
             onChange={(e) => update({ children: e.target.value })}
-            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
+            className="bg-transparent text-slate-800 border-b border-slate-200/80 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
           >
             {[0, 1, 2, 3].map(n => (
-              <option key={n} value={n.toString()} className="bg-obsidian text-white">{n} Child{n !== 1 ? 'ren' : ''}</option>
+              <option key={n} value={n.toString()} className="bg-white text-slate-800">{n} Child{n !== 1 ? 'ren' : ''}</option>
             ))}
           </select>
         </div>
 
         <div className="flex flex-col gap-3">
-          <label className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black flex items-center gap-2">
+          <label className="text-[10px] uppercase tracking-[0.3em] text-accent/80 font-black flex items-center gap-2">
             <SortDesc className="h-3 w-3" /> Sort By
           </label>
           <select
             value={current.sort}
             onChange={(e) => update({ sort: e.target.value })}
-            className="bg-transparent text-white border-b border-white/20 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
+            className="bg-transparent text-slate-800 border-b border-slate-200/80 pb-2 focus:border-accent outline-none text-sm font-bold transition-colors appearance-none cursor-pointer"
           >
-            <option value="sortOrder" className="bg-obsidian text-white">Featured</option>
-            <option value="price-asc" className="bg-obsidian text-white">Price: Low to High</option>
-            <option value="price-desc" className="bg-obsidian text-white">Price: High to Low</option>
+            <option value="sortOrder" className="bg-white text-slate-800">Featured</option>
+            <option value="price-asc" className="bg-white text-slate-800">Price: Low to High</option>
+            <option value="price-desc" className="bg-white text-slate-800">Price: High to Low</option>
           </select>
         </div>
       </div>
@@ -128,7 +128,7 @@ export function RoomFilters() {
       )}
 
       {/* 2. Room Type Pills */}
-      <div className="flex flex-wrap items-center justify-center gap-3 border-t border-white/10 pt-10">
+      <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-100 pt-10">
         <FilterPill
           active={current.type === ''}
           onClick={() => update({ type: '' })}
@@ -163,7 +163,7 @@ function FilterPill({ active, onClick, label }: { active: boolean, onClick: () =
         'px-8 py-3 text-[11px] uppercase tracking-[0.4em] transition-all duration-500 rounded-full border font-black',
         active
           ? 'bg-accent text-white border-accent shadow-xl shadow-accent/20'
-          : 'bg-white/5 text-white/70 border-white/10 hover:border-white/30 hover:text-white',
+          : 'bg-slate-100 text-slate-600 border-slate-100 hover:bg-slate-100 hover:text-accent hover:border-accent/40',
       )}
     >
       {label}

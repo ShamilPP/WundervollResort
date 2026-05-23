@@ -5,7 +5,7 @@ import { RoomFilters } from './room-filters'
 
 export function RoomsHero() {
   return (
-    <section className="relative h-screen min-h-[700px] w-full overflow-hidden bg-obsidian">
+    <section className="relative min-h-screen lg:h-screen lg:min-h-[700px] w-full overflow-hidden bg-obsidian flex flex-col justify-between py-12 lg:py-0">
       {/* Immersive Background Image */}
       <motion.div
         initial={{ scale: 1.1 }}
@@ -21,36 +21,36 @@ export function RoomsHero() {
       </motion.div>
 
       {/* Centered High-Impact Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-start px-4 pt-48 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-start px-4 pt-24 lg:pt-48 text-center w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="max-w-4xl"
         >
-          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-accent mb-6 block">
+          <span className="text-[10px] font-black uppercase tracking-[0.8em] text-accent mb-4 lg:mb-6 block">
             Limited Collection
           </span>
-          <h1 className="font-serif text-6xl md:text-9xl text-white tracking-tight leading-none mb-8">
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-9xl text-white tracking-tight leading-none mb-4 lg:mb-8">
             The Residences
           </h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-white/70 font-light italic leading-relaxed">
+          <p className="max-w-2xl mx-auto text-sm sm:text-lg lg:text-xl text-white/70 font-light italic leading-relaxed">
             {"\"Nine private sanctuaries where the architecture serves only to frame the rhythm of the ocean.\""}
           </p>
         </motion.div>
       </div>
 
       {/* Integrated Action Bar (Understandable UI) */}
-      <div className="absolute inset-x-0 bottom-6 z-20">
+      <div className="relative lg:absolute lg:inset-x-0 lg:bottom-12 z-20 mt-8 lg:mt-0 w-full">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="mx-auto max-w-5xl rounded-[3rem] bg-white/20 backdrop-blur-2xl border border-white/20 p-8 shadow-2xl shadow-obsidian/50"
+            className="mx-auto max-w-5xl rounded-[3rem] bg-white/95 backdrop-blur-2xl border border-slate-100/80 p-6 md:p-8 shadow-2xl shadow-black/5"
           >
-            <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-4">
-              <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white">
+            <div className="mb-8 flex items-center justify-between border-b border-slate-100 pb-4">
+              <span className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-800">
                 Find your perfect sanctuary
               </span>
               <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />

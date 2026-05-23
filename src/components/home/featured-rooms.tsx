@@ -41,7 +41,7 @@ export function FeaturedRooms({ rooms }: Props) {
             >
               <Link
                 href={`/rooms/${room.slug}`}
-                className="group relative block aspect-[4/5] overflow-hidden rounded-[3rem] bg-obsidian shadow-2xl"
+                className="group relative block w-full h-full overflow-hidden rounded-[3.5rem] bg-obsidian shadow-2xl"
               >
                 {/* Optimized Image */}
                 <Image
