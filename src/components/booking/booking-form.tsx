@@ -33,7 +33,7 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
   const [adults, setAdults] = useState(draft.adults || 1)
   const [children, setChildren] = useState(draft.children || 0)
   const [guestName, setGuestName] = useState(user.name ?? '')
-  const [guestEmail, setGuestEmail] = useState(user.email ?? '')
+  const [guestEmail, setGuestEmail] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
   const [specialRequests, setSpecialRequests] = useState(draft.specialRequests || '')
   const [quote, setQuote] = useState<Quote | null>(null)
@@ -85,7 +85,32 @@ export function BookingForm({ roomId, roomName, maxGuests, user }: Props) {
         }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Failed to create booking')
+      console.log(data.error, "error");
+      console.log(res.status, "status");
+
+      if (
+        res.status === 401 ||
+        data?.error === 'unauthorized' ||
+        data?.error === 'Unauthorized'
+      ) {
+        toast.success('Preserving stay details... Redirecting to login.')
+
+        // Save details in local persistent draft so user doesn't have to re-enter
+        if (checkIn && checkOut) {
+          draft.setDates(new Date(checkIn).toISOString(), new Date(checkOut).toISOString())
+        }
+        draft.setGuestsSplit(adults, children)
+        draft.setSpecialRequests(specialRequests)
+
+        // Include full path and active query parameters
+        const fullUrl = window.location.pathname + window.location.search
+        router.push(`/login?callbackUrl=${encodeURIComponent(fullUrl)}`)
+        return
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error ?? 'Failed to create booking')
+      }
       draft.clear()
       toast.success('Booking created')
       router.push(`/booking/confirmation/${data.id}`)

@@ -317,3 +317,9 @@ model GalleryImage {
   @@index([category])
   @@index([sortOrder])
 }
+
+model Setting {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  key   String @unique
+  value String
+}

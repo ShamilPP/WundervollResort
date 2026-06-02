@@ -8,6 +8,7 @@ import { Navbar } from '@/components/layout/navbar'
 import { Footer } from '@/components/layout/footer'
 import { formatINR } from '@/lib/money'
 import { PaymentPanel } from '@/components/booking/payment-panel'
+import { getAdvancePercentage } from '@/lib/settings'
 import * as motion from 'framer-motion/m'
 
 export default async function ConfirmationPage({
@@ -29,6 +30,8 @@ export default async function ConfirmationPage({
   if (booking.userId !== session.user.id && session.user.role !== 'ADMIN') {
     notFound()
   }
+
+  const advancePercentage = await getAdvancePercentage()
 
   const isConfirmed = booking.status === 'CONFIRMED'
 
@@ -129,6 +132,7 @@ export default async function ConfirmationPage({
                     guestName={booking.guestName}
                     guestEmail={booking.guestEmail}
                     guestPhone={booking.guestPhone}
+                    advancePercentage={advancePercentage}
                   />
                   <p className="text-[10px] font-bold text-obsidian/30 uppercase tracking-widest text-center">
                     Secure 256-bit SSL encrypted payment

@@ -1,5 +1,3 @@
-import nodemailer from 'nodemailer'
-
 type BookingEmailPayload = {
   to: string
   guestName: string
@@ -22,14 +20,12 @@ const formatRupees = (paise: number) => {
 }
 
 export async function sendBookingConfirmation(payload: BookingEmailPayload) {
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com'
-  const port = parseInt(process.env.SMTP_PORT || '587', 10)
-  const user = process.env.SMTP_USER
-  const pass = process.env.SMTP_PASS
+  const apiKey = process.env.BREVO_API_KEY
+  const fromEmail = process.env.SMTP_FROM || 'wunderwolliceland@gmail.com'
 
   // Default to console log if SMTP credentials are not yet configured in env
-  if (!user || !pass) {
-    console.log('[email:stub] SMTP credentials missing in env. Logged details below:')
+  if (!apiKey) {
+    console.log('[email:stub] BREVO_API_KEY missing in env. Logged details below:')
     console.log({
       to: payload.to,
       guestName: payload.guestName,
@@ -42,12 +38,7 @@ export async function sendBookingConfirmation(payload: BookingEmailPayload) {
     return { ok: true, stub: true }
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
-  })
+  console.log(`[email:send] Initiating Brevo API dispatch to "${payload.to}" for booking "${payload.bookingCode}"...`)
 
   const checkInDate = new Date(payload.checkIn).toLocaleDateString('en-IN', { dateStyle: 'long' })
   const checkOutDate = new Date(payload.checkOut).toLocaleDateString('en-IN', { dateStyle: 'long' })
@@ -220,36 +211,38 @@ export async function sendBookingConfirmation(payload: BookingEmailPayload) {
         </div>
 
         <div class="content">
-          <h2 class="greeting">Dear ${payload.guestName},</h2>
+          <h2 class="greeting">Hi ${payload.guestName},</h2>
           <p class="intro-text">
-            We are absolutely delighted to confirm your upcoming escape to Wundervoll Resort. Your private booking has been successfully recorded in our reservation books.
+            Thank you so much for choosing Wundervoll Resort. Your reservation is fully confirmed! We are already preparing everything to make sure your stay is beautiful, peaceful, and absolutely relaxing.
           </p>
 
           <div class="details-box">
-            <h3 class="details-title">Your Itinerary Details</h3>
-            <div class="detail-row">
-              <span class="detail-label">Sanctuary Room</span>
-              <span class="detail-value">${payload.roomName}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Reference Code</span>
-              <span class="detail-value" style="font-family: monospace; font-size: 14px;">${payload.bookingCode}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Check-In</span>
-              <span class="detail-value">${checkInDate}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Check-Out</span>
-              <span class="detail-value">${checkOutDate}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Duration</span>
-              <span class="detail-value">${nightsStr}</span>
-            </div>
+            <h3 class="details-title">Your Stay Details</h3>
+            <table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+              <tr>
+                <td style="text-align: left; padding: 12px 0; border-bottom: 1px dashed #F0ECE8; font-size: 10px; font-weight: bold; color: #999999; text-transform: uppercase; letter-spacing: 0.1em;">Room / Villa</td>
+                <td style="text-align: right; padding: 12px 0; border-bottom: 1px dashed #F0ECE8; font-size: 13px; font-weight: bold; color: #1A1A1A;">${payload.roomName}</td>
+              </tr>
+              <tr>
+                <td style="text-align: left; padding: 12px 0; border-bottom: 1px dashed #F0ECE8; font-size: 10px; font-weight: bold; color: #999999; text-transform: uppercase; letter-spacing: 0.1em;">Booking Reference</td>
+                <td style="text-align: right; padding: 12px 0; border-bottom: 1px dashed #F0ECE8; font-size: 13px; font-weight: bold; color: #1A1A1A; font-family: monospace;">${payload.bookingCode}</td>
+              </tr>
+              <tr>
+                <td style="text-align: left; padding: 12px 0; border-bottom: 1px dashed #F0ECE8; font-size: 10px; font-weight: bold; color: #999999; text-transform: uppercase; letter-spacing: 0.1em;">Arrival Date</td>
+                <td style="text-align: right; padding: 12px 0; border-bottom: 1px dashed #F0ECE8; font-size: 13px; font-weight: bold; color: #1A1A1A;">${checkInDate}</td>
+              </tr>
+              <tr>
+                <td style="text-align: left; padding: 12px 0; border-bottom: 1px dashed #F0ECE8; font-size: 10px; font-weight: bold; color: #999999; text-transform: uppercase; letter-spacing: 0.1em;">Departure Date</td>
+                <td style="text-align: right; padding: 12px 0; border-bottom: 1px dashed #F0ECE8; font-size: 13px; font-weight: bold; color: #1A1A1A;">${checkOutDate}</td>
+              </tr>
+              <tr>
+                <td style="text-align: left; padding: 12px 0; font-size: 10px; font-weight: bold; color: #999999; text-transform: uppercase; letter-spacing: 0.1em;">Total Nights</td>
+                <td style="text-align: right; padding: 12px 0; font-size: 13px; font-weight: bold; color: #1A1A1A;">${nightsStr}</td>
+              </tr>
+            </table>
           </div>
 
-          <h3 class="details-title" style="margin-bottom: 12px;">Financial Statement & Receipt</h3>
+          <h3 class="details-title" style="margin-bottom: 12px;">Payment Summary</h3>
           <table class="invoice-table">
             <thead>
               <tr>
@@ -259,30 +252,42 @@ export async function sendBookingConfirmation(payload: BookingEmailPayload) {
             </thead>
             <tbody>
               <tr>
-                <td>Accommodation Investment (${payload.roomName})</td>
+                <td>Room Charges (${payload.roomName})</td>
                 <td style="text-align: right; font-weight: bold;">${totalStr}</td>
               </tr>
               <tr class="invoice-total-row">
-                <td style="color: #10B981; font-weight: bold; padding-top: 20px;">Amount Paid (Secured)</td>
+                <td style="color: #10B981; font-weight: bold; padding-top: 20px;">Amount Paid</td>
                 <td style="text-align: right; padding-top: 20px;" class="paid-amount">${paidStr}</td>
               </tr>
               ${balanceVal > 0 ? `
               <tr class="invoice-total-row">
-                <td style="color: #D4AF37; font-weight: bold;">Remaining Balance (Due on Arrival)</td>
+                <td style="color: #D4AF37; font-weight: bold;">Balance Due on Arrival</td>
                 <td style="text-align: right;" class="balance-amount">${balanceStr}</td>
               </tr>
               ` : `
               <tr class="invoice-total-row">
-                <td style="color: #10B981; font-weight: bold;">Outstanding Balance</td>
+                <td style="color: #10B981; font-weight: bold;">Remaining Balance</td>
                 <td style="text-align: right; color: #10B981; font-weight: bold;">Fully Paid</td>
               </tr>
               `}
             </tbody>
           </table>
 
-          <p class="intro-text" style="margin-top: 30px;">
-            If you need any special requests, custom menus, or assistance with local transfers, please reply directly to this email or reach our concierge team instantly via WhatsApp.
+          <p class="intro-text" style="margin-top: 30px; margin-bottom: 10px;">
+            If you need anything at all—whether it is help with airport transfers, special room requests, or a custom dining menu—please let us know. You can reply directly to this email or chat with us instantly on WhatsApp using the button below.
           </p>
+
+          <div style="text-align: center; margin: 25px 0 35px 0;">
+            <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://wa.me/919539079358" style="height:50px;v-text-anchor:middle;width:260px;" arcsize="20%" stroke="f" fillcolor="#D4AF37">
+              <w:anchorlock/>
+              <center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:bold;">Chat with us on WhatsApp</center>
+            </v:roundrect>
+            <![endif]-->
+            <!--[if !mso]><!-->
+            <a href="https://wa.me/919539079358" target="_blank" style="background-color: #D4AF37; border-radius: 12px; color: #FFFFFF; display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: bold; line-height: 50px; text-align: center; text-decoration: none; width: 260px; -webkit-text-size-adjust: none; box-shadow: 0 4px 12px rgba(212,175,55,0.2);">Chat with us on WhatsApp</a>
+            <!--<![endif]-->
+          </div>
         </div>
 
         <div class="footer">
@@ -297,12 +302,33 @@ export async function sendBookingConfirmation(payload: BookingEmailPayload) {
     </html>
   `
 
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || `"Wundervoll Resort" <${user}>`,
-    to: payload.to,
-    subject: `Your Sanctuary is Secured · Wundervoll Resort [${payload.bookingCode}]`,
-    html: htmlContent,
-  })
+  try {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': apiKey,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: 'Wundervoll Resort', email: fromEmail },
+        to: [{ email: payload.to, name: payload.guestName }],
+        subject: `Your stay at Wundervoll Resort is confirmed! 🌊 [${payload.bookingCode}]`,
+        htmlContent: htmlContent,
+      }),
+    })
 
-  return { ok: true, stub: false }
+    if (!res.ok) {
+      const errData = await res.json().catch(() => null)
+      throw new Error(errData?.message || `Brevo API returned status ${res.status}`)
+    }
+
+    const data = await res.json().catch(() => null)
+    console.log(`[email:success] Mail dispatched successfully to "${payload.to}" via Brevo! Message ID: ${data?.messageId}`)
+    return { ok: true, stub: false }
+  } catch (err) {
+    console.error(`[email:error] Failed to send email to "${payload.to}" via Brevo! Details below:`)
+    console.error(err)
+    throw err
+  }
 }

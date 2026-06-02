@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/db'
 import { getRazorpay } from '@/lib/razorpay'
+import { getAdvancePercentage } from '@/lib/settings'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,10 +31,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Calculate secure amount (full vs 30% advance deposit)
+    // Calculate secure amount (full vs dynamic advance deposit)
     let finalAmount = booking.totalAmount
     if (paymentType === 'advance') {
-      finalAmount = Math.round(booking.totalAmount * 0.30)
+      const advancePercent = await getAdvancePercentage()
+      finalAmount = Math.round(booking.totalAmount * (advancePercent / 100))
     }
 
     // Razorpay works in Paisa (1 INR = 100 Paisa)

@@ -73,7 +73,6 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
   useEffect(() => {
     if (session?.user) {
       if (session.user.name) setGuestName(session.user.name)
-      if (session.user.email) setGuestEmail(session.user.email)
     }
   }, [session])
 
@@ -153,6 +152,27 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
         }),
       })
       const data = await res.json()
+      if (
+        res.status === 401 ||
+        data?.error === 'unauthorized' ||
+        data?.error === 'Unauthorized'
+      ) {
+        toast.success('Preserving stay details... Redirecting to login.')
+
+        // Save details in local persistent draft so user doesn't have to re-enter
+        if (range?.from && range?.to) {
+          setRoom(roomId)
+          setDates(range.from.toISOString(), range.to.toISOString())
+        }
+        setGuestsSplit(adults, children)
+        setStoreSpecialRequests(specialRequests)
+
+        // Include full path and active query parameters so calendar dates are preserved
+        const fullUrl = window.location.pathname + window.location.search
+        router.push(`/login?callbackUrl=${encodeURIComponent(fullUrl)}`)
+        return
+      }
+
       if (!res.ok) throw new Error(data.error ?? 'Failed to create booking')
       
       // Clear drafts
@@ -165,7 +185,7 @@ export function RoomAvailabilityCalendar({ roomId, slug, basePrice, maxGuests, e
     } catch (err) {
       toast.error((err as Error).message)
     } finally {
-      setSubmitting(true)
+      setSubmitting(false)
     }
   }
 

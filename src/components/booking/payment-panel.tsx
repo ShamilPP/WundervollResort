@@ -17,13 +17,15 @@ export function PaymentPanel({
   amount,
   guestName,
   guestEmail,
-  guestPhone
+  guestPhone,
+  advancePercentage = 30,
 }: {
   bookingId: string
   amount: number
   guestName: string
   guestEmail: string
   guestPhone?: string | null
+  advancePercentage?: number
 }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -86,6 +88,7 @@ export function PaymentPanel({
             if (!verifyRes.ok) throw new Error(verifyData.error ?? 'Verification failed')
 
             toast.success('Payment verified! Redirecting to your confirmation...')
+            await new Promise((resolve) => setTimeout(resolve, 1500))
             router.push(`/booking/success/${bookingId}`)
           } catch (err) {
             toast.error((err as Error).message)
@@ -115,7 +118,7 @@ export function PaymentPanel({
     }
   }
 
-  const advanceAmount = Math.round(amount * 0.30)
+  const advanceAmount = Math.round(amount * (advancePercentage / 100))
   const remainingAmount = amount - advanceAmount
 
   return (
@@ -134,7 +137,7 @@ export function PaymentPanel({
                 : 'text-obsidian/40 hover:text-obsidian/70'
               }`}
           >
-            <span className="text-[10px] font-black uppercase tracking-wider">30% Secure Deposit</span>
+            <span className="text-[10px] font-black uppercase tracking-wider">{advancePercentage}% Secure Deposit</span>
             <span className="text-xs font-serif font-bold mt-1 text-accent animate-in fade-in">
               {formatINR(advanceAmount)}
             </span>
