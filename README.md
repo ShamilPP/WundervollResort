@@ -1,4 +1,4 @@
-# Midhunam Residency
+# Wundervoll Resort
 
 A luxury beachfront resort booking platform. Built with Next.js 14, Prisma, MongoDB, NextAuth v5, Tailwind.
 
@@ -24,10 +24,10 @@ npm run db:seed
 npm run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:3000.
 
 ### Default admin
-- Email: `admin@midhunam.com`
+- Email: `admin@wundervoll.com`
 - Password: `admin123`
 
 ## Scripts
@@ -54,4 +54,3 @@ Full architecture in [`docs/`](./docs/).
 edit from authour
 edit from authour
 edit from authour
-# midhunam-residency
